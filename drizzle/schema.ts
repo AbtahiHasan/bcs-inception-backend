@@ -41,9 +41,9 @@ export const subjectsRelations = relations(subjects, ({ many }) => ({
 // ================= Topics =================
 export const topics = pgTable("topics", {
   id: uuid("id").primaryKey().defaultRandom(),
-  subject_id: varchar("subject_id", { length: 255 }).references(
-    () => subjects.id
-  ),
+  subject_id: uuid("subject_id").references(() => subjects.id, {
+    onDelete: "cascade",
+  }),
   title: varchar("title", { length: 255 }),
 });
 
@@ -70,10 +70,12 @@ export const exams = pgTable("exams", {
   exam_type: exam_type_enum("exam_type"),
   duration: integer("duration"),
   exam_date: timestamp("exam_date", { withTimezone: true }),
-  subject_id: varchar("subject_id", { length: 255 }).references(
-    () => subjects.id
-  ),
-  topic_id: varchar("topic_id", { length: 255 }).references(() => topics.id),
+  subject_id: uuid("subject_id").references(() => subjects.id, {
+    onDelete: "cascade",
+  }),
+  topic_id: uuid("topic_id").references(() => topics.id, {
+    onDelete: "cascade",
+  }),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
@@ -92,7 +94,9 @@ export const examsRelations = relations(exams, ({ one, many }) => ({
 // ================= MCQs =================
 export const mcqs = pgTable("mcqs", {
   id: uuid("id").primaryKey().defaultRandom(),
-  exam_id: varchar("exam_id", { length: 255 }).references(() => exams.id),
+  exam_id: uuid("exam_id").references(() => exams.id, {
+    onDelete: "cascade",
+  }),
   question: text("question"),
   explanation: text("explanation"),
   ans_tag: varchar("ans_tag", { length: 10 }),
@@ -110,7 +114,9 @@ export const mcqsRelations = relations(mcqs, ({ one, many }) => ({
 // ================= Options =================
 export const options = pgTable("options", {
   id: uuid("id").primaryKey().defaultRandom(),
-  mcq_id: varchar("mcq_id", { length: 255 }).references(() => mcqs.id),
+  mcq_id: uuid("mcq_id").references(() => mcqs.id, {
+    onDelete: "cascade",
+  }),
   tag: varchar("tag", { length: 10 }),
   option: text("option"),
 });

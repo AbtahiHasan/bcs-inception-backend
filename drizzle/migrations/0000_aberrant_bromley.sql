@@ -6,15 +6,15 @@ CREATE TABLE "exams" (
 	"exam_type" "exam_type",
 	"duration" integer,
 	"exam_date" timestamp with time zone,
-	"subject_id" varchar(255),
-	"topic_id" varchar(255),
+	"subject_id" uuid,
+	"topic_id" uuid,
 	"created_at" timestamp with time zone DEFAULT now(),
 	CONSTRAINT "exams_exam_code_unique" UNIQUE("exam_code")
 );
 --> statement-breakpoint
 CREATE TABLE "mcqs" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"exam_id" varchar(255),
+	"exam_id" uuid,
 	"question" text,
 	"explanation" text,
 	"ans_tag" varchar(10),
@@ -23,7 +23,7 @@ CREATE TABLE "mcqs" (
 --> statement-breakpoint
 CREATE TABLE "options" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"mcq_id" varchar(255),
+	"mcq_id" uuid,
 	"tag" varchar(10),
 	"option" text
 );
@@ -35,7 +35,7 @@ CREATE TABLE "subjects" (
 --> statement-breakpoint
 CREATE TABLE "topics" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"subject_id" varchar(255),
+	"subject_id" uuid,
 	"title" varchar(255)
 );
 --> statement-breakpoint
@@ -50,8 +50,8 @@ CREATE TABLE "users" (
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
-ALTER TABLE "exams" ADD CONSTRAINT "exams_subject_id_subjects_id_fk" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "exams" ADD CONSTRAINT "exams_topic_id_topics_id_fk" FOREIGN KEY ("topic_id") REFERENCES "public"."topics"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "mcqs" ADD CONSTRAINT "mcqs_exam_id_exams_id_fk" FOREIGN KEY ("exam_id") REFERENCES "public"."exams"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "options" ADD CONSTRAINT "options_mcq_id_mcqs_id_fk" FOREIGN KEY ("mcq_id") REFERENCES "public"."mcqs"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "topics" ADD CONSTRAINT "topics_subject_id_subjects_id_fk" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "exams" ADD CONSTRAINT "exams_subject_id_subjects_id_fk" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "exams" ADD CONSTRAINT "exams_topic_id_topics_id_fk" FOREIGN KEY ("topic_id") REFERENCES "public"."topics"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "mcqs" ADD CONSTRAINT "mcqs_exam_id_exams_id_fk" FOREIGN KEY ("exam_id") REFERENCES "public"."exams"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "options" ADD CONSTRAINT "options_mcq_id_mcqs_id_fk" FOREIGN KEY ("mcq_id") REFERENCES "public"."mcqs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "topics" ADD CONSTRAINT "topics_subject_id_subjects_id_fk" FOREIGN KEY ("subject_id") REFERENCES "public"."subjects"("id") ON DELETE cascade ON UPDATE no action;
