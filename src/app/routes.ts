@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { auth_routes } from "./modules/auth/auth.routes";
 
 type TRoute = {
   path: string;
@@ -6,7 +7,12 @@ type TRoute = {
 };
 const router = Router();
 
-const moduleRoutes: TRoute[] = [];
+const moduleRoutes: TRoute[] = [
+  {
+    path: "/auth",
+    route: auth_routes,
+  },
+];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
 

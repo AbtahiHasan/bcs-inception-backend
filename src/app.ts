@@ -6,7 +6,7 @@ import morgan from "morgan";
 import cors from "cors";
 
 import config from "./config";
-import not_found from "./app/middlewares/not-found";
+import { not_found } from "./app/middlewares/not-found";
 import { global_error_handler } from "./app/middlewares/global-error-handler";
 import router from "./app/routes";
 
@@ -24,7 +24,7 @@ app.use(
 
 if (config.env === "development") app.use(morgan("dev"));
 app.use(express.json());
-// app.use(fileUpload());
+
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 
