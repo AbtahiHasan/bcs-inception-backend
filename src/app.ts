@@ -13,9 +13,12 @@ import router from "./app/routes";
 export const app: Application = express();
 
 // cors
+
+const origins = JSON.parse(JSON.stringify(config.origin)).split(",");
+console.log("origin", origins);
 app.use(
   cors({
-    origin: JSON.parse(JSON.stringify(config.origin)),
+    origin: origins,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   })

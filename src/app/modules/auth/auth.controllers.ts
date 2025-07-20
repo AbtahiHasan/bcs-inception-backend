@@ -4,7 +4,19 @@ import { auth_services } from "./auth.services";
 import httpStatus from "http-status";
 
 const register_user = catch_async(async (req, res) => {
+  const password = req.body.password;
   const result = await auth_services.register_user(req.body);
+
+  if (!!result) {
+    console.log({
+      email: result.email!,
+      password: password,
+    });
+    await auth_services.login_user({
+      email: result.email!,
+      password: password,
+    });
+  }
   send_response(res, {
     success: true,
     status_code: httpStatus.OK,
@@ -19,13 +31,13 @@ const login_user = catch_async(async (req, res) => {
   res.cookie("access_token", access_token, {
     httpOnly: true,
     secure: true,
-    sameSite: "strict",
+    sameSite: "lax",
     maxAge: 24 * 30 * 60 * 60 * 1000,
   });
   res.cookie("refresh_token", refresh_token, {
     httpOnly: true,
     secure: true,
-    sameSite: "strict",
+    sameSite: "lax",
     maxAge: 12 * 24 * 30 * 60 * 60 * 1000,
   });
 

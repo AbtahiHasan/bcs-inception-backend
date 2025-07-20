@@ -40,7 +40,7 @@ const register_user = async (payload: i_register_user) => {
 
   payload.password = hash_password;
 
-  const result = await db
+  const [result] = await db
     .insert(users)
     .values({ ...payload, role: "student" })
     .returning({
