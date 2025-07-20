@@ -11,5 +11,6 @@ router.post(
   auth_controllers.register_user
 );
 router.post("/login-user", auth_controllers.login_user);
+router.get("/me", auth_controllers.get_me);
 
 export const auth_routes = router;
