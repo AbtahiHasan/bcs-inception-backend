@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
+  index,
   integer,
   pgEnum,
   pgTable,
@@ -27,13 +28,17 @@ export const users = pgTable("users", {
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
+export const user_relations = relations(users, ({ many }) => ({
+  user_answers: many(user_answers),
+}));
+
 // ================= Subjects =================
 export const subjects = pgTable("subjects", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: varchar("title", { length: 255 }),
 });
 
-export const subjectsRelations = relations(subjects, ({ many }) => ({
+export const subjects_relations = relations(subjects, ({ many }) => ({
   topics: many(topics),
   exams: many(exams),
 }));
@@ -47,7 +52,7 @@ export const topics = pgTable("topics", {
   title: varchar("title", { length: 255 }),
 });
 
-export const topicsRelations = relations(topics, ({ one, many }) => ({
+export const topics_relations = relations(topics, ({ one, many }) => ({
   subject: one(subjects, {
     fields: [topics.subject_id],
     references: [subjects.id],
@@ -79,7 +84,7 @@ export const exams = pgTable("exams", {
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
-export const examsRelations = relations(exams, ({ one, many }) => ({
+export const exams_relations = relations(exams, ({ one, many }) => ({
   subject: one(subjects, {
     fields: [exams.subject_id],
     references: [subjects.id],
@@ -89,6 +94,7 @@ export const examsRelations = relations(exams, ({ one, many }) => ({
     references: [topics.id],
   }),
   mcqs: many(mcqs),
+  user_answers: many(user_answers),
 }));
 
 // ================= MCQs =================
@@ -103,12 +109,13 @@ export const mcqs = pgTable("mcqs", {
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
-export const mcqsRelations = relations(mcqs, ({ one, many }) => ({
+export const mcqs_relations = relations(mcqs, ({ one, many }) => ({
   exam: one(exams, {
     fields: [mcqs.exam_id],
     references: [exams.id],
   }),
   options: many(options),
+  user_answers: many(user_answers),
 }));
 
 // ================= Options =================
@@ -121,9 +128,29 @@ export const options = pgTable("options", {
   option: text("option"),
 });
 
-export const optionsRelations = relations(options, ({ one }) => ({
+export const options_relations = relations(options, ({ one }) => ({
   mcq: one(mcqs, {
     fields: [options.mcq_id],
     references: [mcqs.id],
   }),
 }));
+
+// ================= User Answers =================
+
+export const user_answers = pgTable(
+  "user_answers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    exam_id: uuid("exam_id").references(() => exams.id, {
+      onDelete: "cascade",
+    }),
+    user_id: uuid("user_id").references(() => users.id, {
+      onDelete: "cascade",
+    }),
+    mcq_id: uuid("mcq_id").references(() => mcqs.id, {
+      onDelete: "cascade",
+    }),
+    ans_tag: varchar("ans_tag", { length: 10 }),
+  },
+  (table) => [index("exam_user_idx").on(table.exam_id, table.user_id)]
+);
