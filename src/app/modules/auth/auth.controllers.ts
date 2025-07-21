@@ -1,3 +1,4 @@
+import config from "../../../config";
 import catch_async from "../../utils/catch-async";
 import { send_response } from "../../utils/send-response";
 import { auth_services } from "./auth.services";
@@ -29,14 +30,14 @@ const login_user = catch_async(async (req, res) => {
   );
 
   res.cookie("access_token", access_token, {
-    httpOnly: true,
-    secure: true,
+    httpOnly: config.env == "production",
+    secure: config.env == "production",
     sameSite: "none",
     maxAge: 24 * 30 * 60 * 60 * 1000,
   });
   res.cookie("refresh_token", refresh_token, {
-    httpOnly: true,
-    secure: true,
+    httpOnly: config.env == "production",
+    secure: config.env == "production",
     sameSite: "none",
     maxAge: 12 * 24 * 30 * 60 * 60 * 1000,
   });
