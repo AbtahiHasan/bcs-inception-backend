@@ -31,13 +31,13 @@ const login_user = catch_async(async (req, res) => {
   res.cookie("access_token", access_token, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "none",
     maxAge: 24 * 30 * 60 * 60 * 1000,
   });
   res.cookie("refresh_token", refresh_token, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "none",
     maxAge: 12 * 24 * 30 * 60 * 60 * 1000,
   });
 
