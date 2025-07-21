@@ -2,9 +2,11 @@
   "name": "bankend",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
+    "start": "node dist/src/server.js",
+    "build": "tsc",
     "generate:db": "drizzle-kit generate"
   },
   "keywords": [],
