@@ -20,11 +20,11 @@ export const user_role_enum = pgEnum("role", [
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
-  name: varchar("name", { length: 255 }),
+  name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).unique(),
-  phone_number: varchar("phone_number", { length: 20 }),
-  password: varchar("password", { length: 255 }),
-  role: user_role_enum("role"),
+  phone_number: varchar("phone_number", { length: 20 }).notNull(),
+  password: varchar("password", { length: 255 }).notNull(),
+  role: user_role_enum("role").default("student"),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
@@ -35,7 +35,7 @@ export const user_relations = relations(users, ({ many }) => ({
 // ================= Subjects =================
 export const subjects = pgTable("subjects", {
   id: uuid("id").primaryKey().defaultRandom(),
-  title: varchar("title", { length: 255 }),
+  title: varchar("title", { length: 255 }).unique().notNull(),
 });
 
 export const subjects_relations = relations(subjects, ({ many }) => ({
@@ -46,10 +46,12 @@ export const subjects_relations = relations(subjects, ({ many }) => ({
 // ================= Topics =================
 export const topics = pgTable("topics", {
   id: uuid("id").primaryKey().defaultRandom(),
-  subject_id: uuid("subject_id").references(() => subjects.id, {
-    onDelete: "cascade",
-  }),
-  title: varchar("title", { length: 255 }),
+  subject_id: uuid("subject_id")
+    .references(() => subjects.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
 });
 
 export const topics_relations = relations(topics, ({ one, many }) => ({
@@ -72,15 +74,19 @@ export const exam_type_enum = pgEnum("exam_type", [
 export const exams = pgTable("exams", {
   id: uuid("id").primaryKey().defaultRandom(),
   exam_code: varchar("exam_code", { length: 100 }).unique(),
-  exam_type: exam_type_enum("exam_type"),
-  duration: integer("duration"),
-  exam_date: timestamp("exam_date", { withTimezone: true }),
-  subject_id: uuid("subject_id").references(() => subjects.id, {
-    onDelete: "cascade",
-  }),
-  topic_id: uuid("topic_id").references(() => topics.id, {
-    onDelete: "cascade",
-  }),
+  exam_type: exam_type_enum("exam_type").notNull(),
+  duration: integer("duration").notNull(),
+  exam_date: timestamp("exam_date", { withTimezone: true }).notNull(),
+  subject_id: uuid("subject_id")
+    .references(() => subjects.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  topic_id: uuid("topic_id")
+    .references(() => topics.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
@@ -100,12 +106,14 @@ export const exams_relations = relations(exams, ({ one, many }) => ({
 // ================= MCQs =================
 export const mcqs = pgTable("mcqs", {
   id: uuid("id").primaryKey().defaultRandom(),
-  exam_id: uuid("exam_id").references(() => exams.id, {
-    onDelete: "cascade",
-  }),
-  question: text("question"),
-  explanation: text("explanation"),
-  ans_tag: varchar("ans_tag", { length: 10 }),
+  exam_id: uuid("exam_id")
+    .references(() => exams.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  question: text("question").notNull(),
+  explanation: text("explanation").notNull(),
+  ans_tag: varchar("ans_tag", { length: 10 }).notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
@@ -121,11 +129,13 @@ export const mcqs_relations = relations(mcqs, ({ one, many }) => ({
 // ================= Options =================
 export const options = pgTable("options", {
   id: uuid("id").primaryKey().defaultRandom(),
-  mcq_id: uuid("mcq_id").references(() => mcqs.id, {
-    onDelete: "cascade",
-  }),
-  tag: varchar("tag", { length: 10 }),
-  option: text("option"),
+  mcq_id: uuid("mcq_id")
+    .references(() => mcqs.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+  tag: varchar("tag", { length: 10 }).notNull(),
+  option: text("option").notNull(),
 });
 
 export const options_relations = relations(options, ({ one }) => ({
@@ -141,16 +151,22 @@ export const user_answers = pgTable(
   "user_answers",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    exam_id: uuid("exam_id").references(() => exams.id, {
-      onDelete: "cascade",
-    }),
-    user_id: uuid("user_id").references(() => users.id, {
-      onDelete: "cascade",
-    }),
-    mcq_id: uuid("mcq_id").references(() => mcqs.id, {
-      onDelete: "cascade",
-    }),
-    ans_tag: varchar("ans_tag", { length: 10 }),
+    exam_id: uuid("exam_id")
+      .references(() => exams.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    user_id: uuid("user_id")
+      .references(() => users.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    mcq_id: uuid("mcq_id")
+      .references(() => mcqs.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    ans_tag: varchar("ans_tag", { length: 10 }).notNull(),
   },
   (table) => [index("exam_user_idx").on(table.exam_id, table.user_id)]
 );

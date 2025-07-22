@@ -10,6 +10,7 @@ export default {
   origin: process.env.ORIGIN!,
   database_url: process.env.DATABASE_URL!,
   bcrypt_salt_rounds: Number(process.env.BCRYPT_SALT_ROUNDS!),
+  domain: process.env.DOMAIN!,
   jwt: {
     access_secret: process.env.JWT_ACCESS_SECRET!,
     refresh_secret: process.env.JWT_REFRESH_SECRET!,

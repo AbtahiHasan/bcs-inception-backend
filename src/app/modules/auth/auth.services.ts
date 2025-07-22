@@ -1,16 +1,19 @@
-import { and, eq, or } from "drizzle-orm";
-import { users } from "../../../../drizzle/schema";
-import { db } from "../../../db";
-import { i_login_user, i_register_user } from "./auth.interfaces";
-import AppError from "../../errors/app-error";
-import httpStatus from "http-status";
 import bcrypt from "bcrypt";
+import { eq, or } from "drizzle-orm";
+import httpStatus from "http-status";
+import { users } from "../../../../drizzle/schema";
 import config from "../../../config";
+import { db } from "../../../db";
+import AppError from "../../errors/app-error";
+import {
+  access_token_decode,
+  refresh_token_decode,
+} from "../../utils/decode-tokens";
 import {
   access_token_encode,
   refresh_token_encode,
 } from "../../utils/encode-tokens";
-import { access_token_decode } from "../../utils/decode-tokens";
+import { i_login_user, i_register_user } from "./auth.interfaces";
 
 const register_user = async (payload: i_register_user) => {
   const [user] = await db
@@ -92,5 +95,33 @@ const get_me = (payload: string) => {
 
   return user;
 };
+const refresh_token = (payload: string) => {
+  const user = refresh_token_decode(payload);
 
-export const auth_services = { register_user, login_user, get_me };
+  const access_token = access_token_encode({
+    id: user.id,
+    name: user.name!,
+    phone_number: user.phone_number!,
+    email: user.email!,
+    role: user.role!,
+  });
+  const refresh_token = refresh_token_encode({
+    id: user.id,
+    name: user.name!,
+    phone_number: user.phone_number!,
+    email: user.email!,
+    role: user.role!,
+  });
+
+  return {
+    access_token,
+    refresh_token,
+  };
+};
+
+export const auth_services = {
+  register_user,
+  login_user,
+  get_me,
+  refresh_token,
+};

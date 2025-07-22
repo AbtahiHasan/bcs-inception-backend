@@ -38,6 +38,15 @@ export const global_error_handler: ErrorRequestHandler = (
     message = err.message;
   }
 
+  if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
+    statusCode = httpStatus.UNAUTHORIZED;
+    message = "Unauthorized Access";
+    errorMessage =
+      "You do not have the necessary permissions to access this resource.";
+    errorDetails = null;
+    err.stack = null;
+  }
+
   //   send error response
   return res.status(statusCode).json({
     success: false,

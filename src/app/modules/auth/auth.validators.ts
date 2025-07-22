@@ -28,14 +28,26 @@ const register_user = z.object({
 
 const login_user = z.object({
   body: z.object({
-    body: z.object({
-      email: z.email(),
-      password: required_string,
-    }),
+    email: z.email(),
+    password: required_string,
+  }),
+});
+
+const assess_token = z.object({
+  cookies: z.object({
+    access_token: z.string().min(1),
+  }),
+});
+
+const refresh_token = z.object({
+  cookies: z.object({
+    refresh_token: z.string().min(1),
   }),
 });
 
 export const auth_validators = {
   register_user,
   login_user,
+  assess_token,
+  refresh_token,
 };

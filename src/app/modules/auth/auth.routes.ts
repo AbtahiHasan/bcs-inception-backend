@@ -11,6 +11,15 @@ router.post(
   auth_controllers.register_user
 );
 router.post("/login-user", auth_controllers.login_user);
-router.get("/me", auth_controllers.get_me);
+router.get(
+  "/me",
+  validate_request(auth_validators.assess_token),
+  auth_controllers.get_me
+);
+router.get(
+  "/refresh_token",
+  validate_request(auth_validators.refresh_token),
+  auth_controllers.refresh_token
+);
 
 export const auth_routes = router;

@@ -1,6 +1,7 @@
 import config from "../../../config";
 import catch_async from "../../utils/catch-async";
 import { send_response } from "../../utils/send-response";
+import { set_tokens } from "../../utils/set-tokens";
 import { auth_services } from "./auth.services";
 import httpStatus from "http-status";
 
@@ -29,18 +30,7 @@ const login_user = catch_async(async (req, res) => {
     req.body
   );
 
-  res.cookie("access_token", access_token, {
-    httpOnly: config.env == "production",
-    secure: config.env == "production",
-    sameSite: "none",
-    maxAge: 24 * 30 * 60 * 60 * 1000,
-  });
-  res.cookie("refresh_token", refresh_token, {
-    httpOnly: config.env == "production",
-    secure: config.env == "production",
-    sameSite: "none",
-    maxAge: 12 * 24 * 30 * 60 * 60 * 1000,
-  });
+  set_tokens(res, { access_token, refresh_token });
 
   send_response(res, {
     success: true,
@@ -60,9 +50,26 @@ const get_me = catch_async(async (req, res) => {
     data: user,
   });
 });
+const refresh_token = catch_async(async (req, res) => {
+  const { access_token, refresh_token } = await auth_services.refresh_token(
+    req.cookies.refresh_token
+  );
+
+  set_tokens(res, { access_token, refresh_token });
+
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    data: {
+      access_token,
+      refresh_token,
+    },
+  });
+});
 
 export const auth_controllers = {
   register_user,
   login_user,
   get_me,
+  refresh_token,
 };

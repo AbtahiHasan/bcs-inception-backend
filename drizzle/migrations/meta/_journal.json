@@ -15,6 +15,20 @@
       "when": 1753015995532,
       "tag": "0001_third_shotgun",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1753162288002,
+      "tag": "0002_premium_shaman",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1753163088171,
+      "tag": "0003_dizzy_vision",
+      "breakpoints": true
     }
   ]
 }
