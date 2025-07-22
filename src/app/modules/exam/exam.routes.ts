@@ -1,5 +1,16 @@
 import { Router } from "express";
+import { exam_controllers } from "./exam.controllers";
+import auth from "../../middlewares/auth";
+import { validate_request } from "../../middlewares/validate-request";
+import { exam_validators } from "./exam.validators";
 
 const router = Router();
 
-export const auth_routes = router;
+router.post(
+  "/create",
+  auth(["admin", "super-admin"]),
+  validate_request(exam_validators.create_exam),
+  exam_controllers.create_exam
+);
+
+export const exam_routes = router;

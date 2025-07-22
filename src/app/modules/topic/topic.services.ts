@@ -1,4 +1,4 @@
-import { subjects, topics } from "../../../../drizzle/schema";
+import { topics } from "../../../../drizzle/schema";
 import { db } from "../../../db";
 
 const create_topic = async (payload: { title: string; subject_id: string }) => {
@@ -10,7 +10,7 @@ const create_topic = async (payload: { title: string; subject_id: string }) => {
   return result;
 };
 const get_all_topics = async () => {
-  const result = await db.select().from(subjects);
+  const result = await db.select().from(topics);
 
   return result;
 };

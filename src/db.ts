@@ -1,6 +1,4 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle } from "drizzle-orm/neon-serverless";
 import config from "./config";
 
-const sql = neon(config.database_url);
-export const db = drizzle({ client: sql });
+export const db = drizzle(config.database_url);

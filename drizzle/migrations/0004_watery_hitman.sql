@@ -1,0 +1,1 @@
+ALTER TABLE "exams" ADD COLUMN "title" varchar(350) NOT NULL;

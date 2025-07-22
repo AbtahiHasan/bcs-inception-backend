@@ -75,6 +75,7 @@ export const exams = pgTable("exams", {
   id: uuid("id").primaryKey().defaultRandom(),
   exam_code: varchar("exam_code", { length: 100 }).unique(),
   exam_type: exam_type_enum("exam_type").notNull(),
+  title: varchar("title", { length: 350 }).notNull(),
   duration: integer("duration").notNull(),
   exam_date: timestamp("exam_date", { withTimezone: true }).notNull(),
   subject_id: uuid("subject_id")
