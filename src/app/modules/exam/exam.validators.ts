@@ -10,17 +10,19 @@ const create_exam = z.object({
     exam_date: required_string,
     subject_id: z.uuid(),
     topic_id: z.uuid(),
-    mcqs: z.array(
+  }),
+});
+
+const create_mcq = z.object({
+  body: z.object({
+    exam_id: required_string,
+    question: required_string,
+    explanation: required_string,
+    ans_tag: required_string,
+    options: z.array(
       z.object({
-        question: required_string,
-        explanation: required_string,
-        ans_tag: required_string,
-        options: z.array(
-          z.object({
-            tag: required_string,
-            option: required_string,
-          })
-        ),
+        tag: required_string,
+        option: required_string,
       })
     ),
   }),
@@ -28,4 +30,5 @@ const create_exam = z.object({
 
 export const exam_validators = {
   create_exam,
+  create_mcq,
 };

@@ -4,6 +4,7 @@ export interface i_exam_option {
 }
 
 export interface i_exam_mcq {
+  exam_id: string;
   question: string;
   explanation: string;
   ans_tag: string;
@@ -18,5 +19,4 @@ export interface i_exam {
   exam_date: string;
   subject_id: string;
   topic_id: string;
-  mcqs: i_exam_mcq[];
 }

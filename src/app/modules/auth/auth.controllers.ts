@@ -42,12 +42,13 @@ const login_user = catch_async(async (req, res) => {
   });
 });
 const get_me = catch_async(async (req, res) => {
-  const access_token = req.cookies.access_token;
-  const user = auth_services.get_me(access_token);
+  // const access_token = req.cookies.access_token;
+
+  // const user = auth_services.get_me(access_token);
   send_response(res, {
     success: true,
     status_code: httpStatus.OK,
-    data: user,
+    data: req.user,
   });
 });
 const refresh_token = catch_async(async (req, res) => {
