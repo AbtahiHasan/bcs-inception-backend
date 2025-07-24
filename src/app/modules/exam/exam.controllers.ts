@@ -32,9 +32,21 @@ const get_exam = catch_async(async (req, res) => {
     data: result,
   });
 });
+const get_exams = catch_async(async (req, res) => {
+  const result = await exam_services.get_exams(req.query);
+
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    message: "exams fetched successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
 
 export const exam_controllers = {
   create_exam,
   create_mcq,
   get_exam,
+  get_exams,
 };

@@ -3,7 +3,7 @@ import { exams, mcqs, options } from "../../../../drizzle/schema";
 import { db } from "../../../db";
 import AppError from "../../errors/app-error";
 import { i_exam, i_exam_mcq } from "./exam.interface";
-import { eq } from "drizzle-orm";
+import { and, count, eq, ilike, like } from "drizzle-orm";
 
 const create_exam = async (payload: i_exam) => {
   const [result] = await db
@@ -87,8 +87,51 @@ const get_exam = async (id: string) => {
     ...exam,
     mcqs: Array.from(mcqMap.values()),
   };
-  // if (!result) throw new AppError(httpStatus.NOT_FOUND, "exam not found");
-  return exam;
+};
+interface exam_query_params {
+  page?: number;
+  limit?: number;
+  search?: string;
+  exam_type?: "daily" | "weekly" | "monthly" | "practice" | "free";
+}
+const get_exams = async (params: exam_query_params) => {
+  const { page = 1, limit = 10, search, exam_type } = params;
+
+  const offset = (page - 1) * limit;
+
+  const where_clauses = [];
+
+  if (search) {
+    where_clauses.push(ilike(exams.title, `%${search}%`));
+  }
+
+  if (exam_type) {
+    where_clauses.push(eq(exams.exam_type, exam_type));
+  }
+
+  const results_promise = await db
+    .select()
+    .from(exams)
+    .where(where_clauses.length ? and(...where_clauses) : undefined)
+    .offset(Number(offset))
+    .limit(Number(limit));
+
+  const count_promise = await db
+    .select({ count: count() })
+    .from(exams)
+    .where(where_clauses.length ? and(...where_clauses) : undefined);
+
+  const [result, [total]] = await Promise.all([results_promise, count_promise]);
+  const total_page = Math.ceil(Number(total.count) / (params.limit || 10));
+  return {
+    data: result,
+    meta: {
+      page: Number(page) || 1,
+      limit: Number(limit),
+      total: total.count,
+      total_page,
+    },
+  };
 };
 
-export const exam_services = { create_exam, create_mcq, get_exam };
+export const exam_services = { create_exam, create_mcq, get_exam, get_exams };

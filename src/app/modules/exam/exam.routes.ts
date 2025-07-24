@@ -18,6 +18,11 @@ router.post(
   validate_request(exam_validators.create_mcq),
   exam_controllers.create_mcq
 );
+router.get(
+  "/",
+  auth(["student", "admin", "super-admin"]),
+  exam_controllers.get_exams
+);
 router.get("/:id", auth(["admin", "super-admin"]), exam_controllers.get_exam);
 
 export const exam_routes = router;
