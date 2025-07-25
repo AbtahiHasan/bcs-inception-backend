@@ -1,5 +1,11 @@
 import httpStatus from "http-status";
-import { exams, mcqs, options } from "../../../../drizzle/schema";
+import {
+  exams,
+  mcqs,
+  options,
+  subjects,
+  topics,
+} from "../../../../drizzle/schema";
 import { db } from "../../../db";
 import AppError from "../../errors/app-error";
 import { i_exam, i_exam_mcq } from "./exam.interface";
@@ -103,9 +109,11 @@ interface exam_query_params {
   limit?: number;
   search?: string;
   exam_type?: "daily" | "weekly" | "monthly" | "practice" | "free";
+  subject_id?: string;
+  user_id?: string;
 }
 const get_exams = async (params: exam_query_params) => {
-  const { page = 1, limit = 10, search, exam_type } = params;
+  const { page = 1, limit = 10, search, exam_type, subject_id } = params;
 
   const offset = (page - 1) * limit;
 
@@ -119,10 +127,16 @@ const get_exams = async (params: exam_query_params) => {
     where_clauses.push(eq(exams.exam_type, exam_type));
   }
 
+  if (subject_id) {
+    where_clauses.push(eq(exams.subject_id, subject_id));
+  }
+
   const results_promise = await db
     .select()
     .from(exams)
     .where(where_clauses.length ? and(...where_clauses) : undefined)
+    .leftJoin(subjects, eq(subjects.id, exams.subject_id))
+    .leftJoin(topics, eq(topics.id, exams.topic_id))
     .offset(Number(offset))
     .limit(Number(limit));
 
@@ -133,8 +147,22 @@ const get_exams = async (params: exam_query_params) => {
 
   const [result, [total]] = await Promise.all([results_promise, count_promise]);
   const total_page = Math.ceil(Number(total.count) / (params.limit || 10));
+
+  const exam_data = result.map((item) => ({
+    id: item.exams.id,
+    exam_code: item.exams.exam_code,
+    exam_type: item.exams.exam_type,
+    title: item.exams.title,
+    duration: item.exams.duration,
+    exam_date: item.exams.exam_date,
+    subject_id: item.exams.subject_id,
+    subject: item.subjects?.title,
+    topic: item.topics?.title,
+    topic_id: item.exams.topic_id,
+    created_at: item.exams.created_at,
+  }));
   return {
-    data: result,
+    data: exam_data,
     meta: {
       page: Number(page) || 1,
       limit: Number(limit),
