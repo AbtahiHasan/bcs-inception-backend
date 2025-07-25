@@ -28,7 +28,25 @@ const create_mcq = z.object({
   }),
 });
 
+const create_bulk_mcqs = z.object({
+  body: z
+    .object({
+      exam_id: required_string,
+      question: required_string,
+      explanation: required_string,
+      ans_tag: required_string,
+      options: z.array(
+        z.object({
+          tag: required_string,
+          option: required_string,
+        })
+      ),
+    })
+    .array(),
+});
+
 export const exam_validators = {
   create_exam,
   create_mcq,
+  create_bulk_mcqs,
 };

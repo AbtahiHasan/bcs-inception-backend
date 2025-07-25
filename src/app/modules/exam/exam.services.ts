@@ -51,6 +51,16 @@ const create_mcq = async (payload: i_exam_mcq) => {
   return result;
 };
 
+const create_bulk_mcqs = async (payload: i_exam_mcq[]) => {
+  const promises: any = [];
+  payload.forEach((item) => {
+    promises.push(create_mcq(item));
+  });
+
+  const result = await Promise.all(promises);
+  return result;
+};
+
 const get_exam = async (id: string) => {
   const rows = await db
     .select()
@@ -134,4 +144,19 @@ const get_exams = async (params: exam_query_params) => {
   };
 };
 
-export const exam_services = { create_exam, create_mcq, get_exam, get_exams };
+const delete_exam = async (exam_id: string) => {
+  const result = await db
+    .delete(exams)
+    .where(eq(exams.id, exam_id))
+    .returning();
+  return result;
+};
+
+export const exam_services = {
+  create_exam,
+  create_mcq,
+  create_bulk_mcqs,
+  get_exam,
+  get_exams,
+  delete_exam,
+};
