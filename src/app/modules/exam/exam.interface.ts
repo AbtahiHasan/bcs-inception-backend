@@ -20,3 +20,9 @@ export interface i_exam {
   subject_id: string;
   topic_id: string;
 }
+
+export interface i_user_exam_ans {
+  exam_id: string;
+  mcq_id: string;
+  ans_tag: "A" | "B" | "C" | "D";
+}

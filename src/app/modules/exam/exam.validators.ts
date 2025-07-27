@@ -18,10 +18,10 @@ const create_mcq = z.object({
     exam_id: required_string,
     question: required_string,
     explanation: required_string,
-    ans_tag: required_string,
+    ans_tag: z.enum(["A", "B", "C", "D"]),
     options: z.array(
       z.object({
-        tag: required_string,
+        tag: z.enum(["A", "B", "C", "D"]),
         option: required_string,
       })
     ),
@@ -34,13 +34,22 @@ const create_bulk_mcqs = z.object({
       exam_id: required_string,
       question: required_string,
       explanation: required_string,
-      ans_tag: required_string,
+      ans_tag: z.enum(["A", "B", "C", "D"]),
       options: z.array(
         z.object({
-          tag: required_string,
+          tag: z.enum(["A", "B", "C", "D"]),
           option: required_string,
         })
       ),
+    })
+    .array(),
+});
+const create_user_exam_ans = z.object({
+  body: z
+    .object({
+      exam_id: z.uuid(),
+      mcq_id: z.uuid(),
+      ans_tag: z.enum(["A", "B", "C", "D"]),
     })
     .array(),
 });
@@ -49,4 +58,5 @@ export const exam_validators = {
   create_exam,
   create_mcq,
   create_bulk_mcqs,
+  create_user_exam_ans,
 };

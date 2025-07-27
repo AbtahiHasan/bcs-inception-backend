@@ -35,5 +35,16 @@ router.delete(
   auth(["admin", "super-admin"]),
   exam_controllers.delete_exam
 );
+router.post(
+  "/ans/create",
+  auth(["student", "admin", "super-admin"]),
+  validate_request(exam_validators.create_user_exam_ans),
+  exam_controllers.create_user_exam_ans
+);
+router.get(
+  "/ans/:id",
+  auth(["student", "admin", "super-admin"]),
+  exam_controllers.get_user_ans
+);
 
 export const exam_routes = router;

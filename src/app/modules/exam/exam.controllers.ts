@@ -33,7 +33,10 @@ const create_bulk_mcqs = catch_async(async (req, res) => {
   });
 });
 const get_exam = catch_async(async (req, res) => {
-  const result = await exam_services.get_exam(req.params.id);
+  const result = await exam_services.get_exam(
+    req.params.id,
+    req.query?.exam_status! as any
+  );
 
   send_response(res, {
     success: true,
@@ -63,6 +66,29 @@ const delete_exam = catch_async(async (req, res) => {
     data: result,
   });
 });
+const create_user_exam_ans = catch_async(async (req, res) => {
+  const result = await exam_services.create_user_exam_ans(
+    req.user.id,
+    req.body
+  );
+
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    message: "user exam ans created successfully",
+    data: result,
+  });
+});
+const get_user_ans = catch_async(async (req, res) => {
+  const result = await exam_services.get_user_ans(req.user.id, req.params.id);
+
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    message: "user exam ans fetched successfully",
+    data: result,
+  });
+});
 
 export const exam_controllers = {
   create_exam,
@@ -71,4 +97,6 @@ export const exam_controllers = {
   get_exam,
   get_exams,
   delete_exam,
+  create_user_exam_ans,
+  get_user_ans,
 };

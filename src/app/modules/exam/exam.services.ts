@@ -5,10 +5,11 @@ import {
   options,
   subjects,
   topics,
+  user_answers,
 } from "../../../../drizzle/schema";
 import { db } from "../../../db";
 import AppError from "../../errors/app-error";
-import { i_exam, i_exam_mcq } from "./exam.interface";
+import { i_exam, i_exam_mcq, i_user_exam_ans } from "./exam.interface";
 import { and, count, eq, ilike, like } from "drizzle-orm";
 
 const create_exam = async (payload: i_exam) => {
@@ -36,13 +37,13 @@ const create_mcq = async (payload: i_exam_mcq) => {
       exam_id,
       question: payload.question,
       explanation: payload.explanation,
-      ans_tag: payload.ans_tag,
+      ans_tag: payload.ans_tag as "A" | "B" | "C" | "D",
     };
     const [mcq] = await tx.insert(mcqs).values(mcq_data).returning();
     if (!mcq?.id) throw new AppError(httpStatus.OK, "failed to create mcq");
     const option_inserts = payload.options.map((opt) => ({
       mcq_id: mcq?.id,
-      tag: opt.tag,
+      tag: opt.tag as "A" | "B" | "C" | "D",
       option: opt.option,
     }));
 
@@ -67,7 +68,11 @@ const create_bulk_mcqs = async (payload: i_exam_mcq[]) => {
   return result;
 };
 
-const get_exam = async (id: string) => {
+type exam_status = "live" | "result";
+const get_exam = async (id: string, exam_status: exam_status) => {
+  if (exam_status == undefined) {
+    exam_status = "live";
+  }
   const rows = await db
     .select()
     .from(exams)
@@ -82,18 +87,22 @@ const get_exam = async (id: string) => {
     const mcq = row.mcqs;
     const option = row.options;
 
-    // Skip if no MCQ (in case left join didn’t match any mcq)
     if (!mcq) continue;
 
-    // Initialize mcq with options array
     if (!mcqMap.has(mcq.id)) {
       mcqMap.set(mcq.id, {
-        ...mcq,
+        ...{
+          id: mcq.id,
+          exam_id: mcq.exam_id,
+          question: mcq.question,
+          explanation: mcq.explanation,
+          created_at: mcq.created_at,
+        },
+        ...(exam_status == "result" && { ans_tag: mcq.ans_tag }),
         options: [],
       });
     }
 
-    // Push option if available
     if (option) {
       mcqMap.get(mcq.id).options.push(option);
     }
@@ -180,6 +189,31 @@ const delete_exam = async (exam_id: string) => {
   return result;
 };
 
+const create_user_exam_ans = async (
+  user_id: string,
+  payload: i_user_exam_ans[]
+) => {
+  const data: (i_user_exam_ans & { user_id: string })[] = [];
+  payload.forEach((item) => {
+    data.push({ ...item, user_id: user_id });
+  });
+
+  const result = await db.insert(user_answers).values(data).returning();
+
+  return result;
+};
+
+const get_user_ans = async (user_id: string, exam_id: string) => {
+  const result = await db
+    .select()
+    .from(user_answers)
+    .where(
+      and(eq(user_answers.user_id, user_id), eq(user_answers.exam_id, exam_id))
+    );
+
+  return result;
+};
+
 export const exam_services = {
   create_exam,
   create_mcq,
@@ -187,4 +221,6 @@ export const exam_services = {
   get_exam,
   get_exams,
   delete_exam,
+  create_user_exam_ans,
+  get_user_ans,
 };

@@ -105,6 +105,8 @@ export const exams_relations = relations(exams, ({ one, many }) => ({
 }));
 
 // ================= MCQs =================
+
+export const ans_tag_enum = pgEnum("ans_tag", ["A", "B", "C", "D"]);
 export const mcqs = pgTable("mcqs", {
   id: uuid("id").primaryKey().defaultRandom(),
   exam_id: uuid("exam_id")
@@ -114,7 +116,7 @@ export const mcqs = pgTable("mcqs", {
     .notNull(),
   question: text("question").notNull(),
   explanation: text("explanation").notNull(),
-  ans_tag: varchar("ans_tag", { length: 10 }).notNull(),
+  ans_tag: ans_tag_enum("ans_tag").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
@@ -135,7 +137,7 @@ export const options = pgTable("options", {
       onDelete: "cascade",
     })
     .notNull(),
-  tag: varchar("tag", { length: 10 }).notNull(),
+  tag: ans_tag_enum("tag").notNull(),
   option: text("option").notNull(),
 });
 
@@ -167,7 +169,7 @@ export const user_answers = pgTable(
         onDelete: "cascade",
       })
       .notNull(),
-    ans_tag: varchar("ans_tag", { length: 10 }).notNull(),
+    ans_tag: ans_tag_enum("ans_tag").notNull(),
   },
   (table) => [index("exam_user_idx").on(table.exam_id, table.user_id)]
 );
