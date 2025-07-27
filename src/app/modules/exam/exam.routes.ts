@@ -29,6 +29,12 @@ router.get(
   auth(["student", "admin", "super-admin"]),
   exam_controllers.get_exams
 );
+
+router.get(
+  "/taken",
+  auth(["student", "admin", "super-admin"]),
+  exam_controllers.get_user_taken_exams
+);
 router.get("/:id", auth(["admin", "super-admin"]), exam_controllers.get_exam);
 router.delete(
   "/:id",
@@ -41,6 +47,7 @@ router.post(
   validate_request(exam_validators.create_user_exam_ans),
   exam_controllers.create_user_exam_ans
 );
+
 router.get(
   "/ans/:id",
   auth(["student", "admin", "super-admin"]),

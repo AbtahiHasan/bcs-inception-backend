@@ -213,6 +213,14 @@ const get_user_ans = async (user_id: string, exam_id: string) => {
 
   return result;
 };
+const get_user_taken_exams = async (user_id: string) => {
+  const result = await db
+    .select()
+    .from(user_answers)
+    .where(and(eq(user_answers.user_id, user_id)));
+  const uniqueExamIds = [...new Set(result.map((r) => r.exam_id))];
+  return uniqueExamIds;
+};
 
 export const exam_services = {
   create_exam,
@@ -223,4 +231,5 @@ export const exam_services = {
   delete_exam,
   create_user_exam_ans,
   get_user_ans,
+  get_user_taken_exams,
 };

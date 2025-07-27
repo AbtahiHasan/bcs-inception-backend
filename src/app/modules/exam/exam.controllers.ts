@@ -89,6 +89,16 @@ const get_user_ans = catch_async(async (req, res) => {
     data: result,
   });
 });
+const get_user_taken_exams = catch_async(async (req, res) => {
+  const result = await exam_services.get_user_taken_exams(req.user.id);
+
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    message: "user taken fetched successfully",
+    data: result,
+  });
+});
 
 export const exam_controllers = {
   create_exam,
@@ -99,4 +109,5 @@ export const exam_controllers = {
   delete_exam,
   create_user_exam_ans,
   get_user_ans,
+  get_user_taken_exams,
 };
