@@ -4,7 +4,13 @@ import { required_string } from "../../utils/validators";
 const create_exam = z.object({
   body: z.object({
     exam_code: required_string,
-    exam_type: z.enum(["daily", "weekly", "monthly", "practice", "free"]),
+    exam_type: z.enum([
+      "daily",
+      "weekly",
+      "monthly",
+      "practice",
+      "question bank",
+    ]),
     title: required_string,
     duration: z.number(),
     exam_date: required_string,

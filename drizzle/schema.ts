@@ -68,7 +68,7 @@ export const exam_type_enum = pgEnum("exam_type", [
   "weekly",
   "monthly",
   "practice",
-  "free",
+  "question bank",
 ]);
 
 export const exams = pgTable("exams", {

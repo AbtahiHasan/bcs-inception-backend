@@ -50,6 +50,20 @@
       "when": 1753606789284,
       "tag": "0006_medical_serpent_society",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1753692743458,
+      "tag": "0007_plain_maria_hill",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1753692928706,
+      "tag": "0008_lethal_wilson_fisk",
+      "breakpoints": true
     }
   ]
 }

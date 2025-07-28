@@ -10,7 +10,7 @@ import {
 import { db } from "../../../db";
 import AppError from "../../errors/app-error";
 import { i_exam, i_exam_mcq, i_user_exam_ans } from "./exam.interface";
-import { and, count, eq, ilike, like } from "drizzle-orm";
+import { and, count, eq, ilike, like, lt } from "drizzle-orm";
 
 const create_exam = async (payload: i_exam) => {
   const [result] = await db
@@ -117,7 +117,14 @@ interface exam_query_params {
   page?: number;
   limit?: number;
   search?: string;
-  exam_type?: "daily" | "weekly" | "monthly" | "practice" | "free";
+  exam_type?:
+    | "daily"
+    | "weekly"
+    | "monthly"
+    | "practice"
+    | "question bank"
+    | "past"
+    | "free";
   subject_id?: string;
   user_id?: string;
 }
@@ -127,18 +134,24 @@ const get_exams = async (params: exam_query_params) => {
   const offset = (page - 1) * limit;
 
   const where_clauses = [];
+  const now = new Date();
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+  if (search) where_clauses.push(ilike(exams.title, `%${search}%`));
 
-  if (search) {
-    where_clauses.push(ilike(exams.title, `%${search}%`));
-  }
-
-  if (exam_type) {
+  if (exam_type && exam_type != "past" && exam_type !== "free")
     where_clauses.push(eq(exams.exam_type, exam_type));
-  }
 
-  if (subject_id) {
-    where_clauses.push(eq(exams.subject_id, subject_id));
-  }
+  if (exam_type && (exam_type == "past" || exam_type == "free"))
+    where_clauses.push(lt(exams.exam_date, startOfToday));
+
+  if (exam_type && exam_type == "free")
+    where_clauses.push(eq(exams.exam_type, "weekly"));
+
+  if (subject_id) where_clauses.push(eq(exams.subject_id, subject_id));
 
   const results_promise = await db
     .select()

@@ -13,7 +13,7 @@ export interface i_exam_mcq {
 
 export interface i_exam {
   exam_code: string;
-  exam_type: "daily" | "weekly" | "monthly" | "practice" | "free";
+  exam_type: "daily" | "weekly" | "monthly" | "practice" | "question bank";
   title: string;
   duration: number;
   exam_date: string;
