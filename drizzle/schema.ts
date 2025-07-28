@@ -32,6 +32,17 @@ export const user_relations = relations(users, ({ many }) => ({
   user_answers: many(user_answers),
 }));
 
+// ================= Contacts =================
+
+export const contacts = pgTable("contacts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone_number: varchar("phone_number", { length: 15 }).notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  message: varchar("message", { length: 1055 }).notNull(),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
 // ================= Subjects =================
 export const subjects = pgTable("subjects", {
   id: uuid("id").primaryKey().defaultRandom(),
