@@ -46,7 +46,7 @@ const get_exam = catch_async(async (req, res) => {
   });
 });
 const get_exams = catch_async(async (req, res) => {
-  const result = await exam_services.get_exams(req.query);
+  const result = await exam_services.get_exams(req.query, req.user.id);
 
   send_response(res, {
     success: true,

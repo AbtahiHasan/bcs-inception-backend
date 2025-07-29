@@ -10,7 +10,7 @@ import {
 import { db } from "../../../db";
 import AppError from "../../errors/app-error";
 import { i_exam, i_exam_mcq, i_user_exam_ans } from "./exam.interface";
-import { and, count, eq, ilike, like, lt } from "drizzle-orm";
+import { and, count, eq, ilike, like, lt, not } from "drizzle-orm";
 
 const create_exam = async (payload: i_exam) => {
   const [result] = await db
@@ -127,9 +127,17 @@ interface exam_query_params {
     | "free";
   subject_id?: string;
   user_id?: string;
+  selected_status?: "Not Taken Yet" | "Already Taken" | "Absent";
 }
-const get_exams = async (params: exam_query_params) => {
-  const { page = 1, limit = 10, search, exam_type, subject_id } = params;
+const get_exams = async (params: exam_query_params, user_id: string) => {
+  const {
+    page = 1,
+    limit = 10,
+    search,
+    exam_type,
+    subject_id,
+    selected_status,
+  } = params;
 
   const offset = (page - 1) * limit;
 
@@ -148,10 +156,27 @@ const get_exams = async (params: exam_query_params) => {
   if (exam_type && (exam_type == "past" || exam_type == "free"))
     where_clauses.push(lt(exams.exam_date, startOfToday));
 
+  if (exam_type && exam_type == "past")
+    where_clauses.push(not(eq(exams.exam_type, "question bank")));
+
   if (exam_type && exam_type == "free")
     where_clauses.push(eq(exams.exam_type, "weekly"));
 
   if (subject_id) where_clauses.push(eq(exams.subject_id, subject_id));
+
+  if (selected_status) {
+    const ids = await get_user_taken_exams(user_id);
+
+    if (selected_status == "Already Taken")
+      ids.forEach((id) => {
+        where_clauses.push(eq(exams.id, id));
+      });
+    else if (selected_status == "Not Taken Yet") {
+      ids.forEach((id) => {
+        where_clauses.push(not(eq(exams.id, id)));
+      });
+    }
+  }
 
   const results_promise = await db
     .select()
