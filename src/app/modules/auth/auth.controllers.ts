@@ -78,10 +78,22 @@ const change_auth_info = catch_async(async (req, res) => {
   });
 });
 
+const logout = catch_async(async (req, res) => {
+  res.clearCookie("access_token");
+  res.clearCookie("refresh_token");
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    message: "user logout successfully",
+    data: null,
+  });
+});
+
 export const auth_controllers = {
   register_user,
   login_user,
   get_me,
   refresh_token,
   change_auth_info,
+  logout,
 };

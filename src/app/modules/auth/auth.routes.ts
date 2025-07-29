@@ -30,5 +30,11 @@ router.put(
 
   auth_controllers.change_auth_info
 );
+router.post(
+  "/logout",
+  auth(["student", "admin", "super-admin"]),
+
+  auth_controllers.logout
+);
 
 export const auth_routes = router;

@@ -163,10 +163,13 @@ const change_auth_info = async (
   }
 };
 
+const logout = async () => {};
+
 export const auth_services = {
   register_user,
   login_user,
   get_me,
   refresh_token,
   change_auth_info,
+  logout,
 };
