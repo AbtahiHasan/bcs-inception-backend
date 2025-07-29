@@ -21,14 +21,7 @@ export const access_token_decode = (token: string): i_user => {
   return user;
 };
 export const refresh_token_decode = (token: string) => {
-  const user_data = jwt.verify(token, config.jwt.refresh_secret) as JwtPayload;
+  const result = jwt.verify(token, config.jwt.refresh_secret) as JwtPayload;
 
-  const user: i_user = {
-    id: user_data.id,
-    name: user_data.name,
-    email: user_data.email,
-    phone_number: user_data.phone_number,
-    role: user_data.role,
-  };
-  return user;
+  return result;
 };

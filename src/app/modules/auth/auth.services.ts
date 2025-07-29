@@ -13,7 +13,12 @@ import {
   access_token_encode,
   refresh_token_encode,
 } from "../../utils/encode-tokens";
-import { i_login_user, i_register_user } from "./auth.interfaces";
+import {
+  i_change_auth_info,
+  i_login_user,
+  i_register_user,
+} from "./auth.interfaces";
+import { JwtPayload } from "jsonwebtoken";
 
 const register_user = async (payload: i_register_user) => {
   const [user] = await db
@@ -76,13 +81,7 @@ const login_user = async (payload: i_login_user) => {
     email: user.email!,
     role: user.role!,
   });
-  const refresh_token = refresh_token_encode({
-    id: user.id,
-    name: user.name!,
-    phone_number: user.phone_number!,
-    email: user.email!,
-    role: user.role!,
-  });
+  const refresh_token = refresh_token_encode(user.id);
 
   return {
     access_token,
@@ -92,12 +91,28 @@ const login_user = async (payload: i_login_user) => {
 
 const get_me = (payload: string) => {
   const user = access_token_decode(payload);
-
   return user;
 };
-const refresh_token = (payload: string) => {
-  const user = refresh_token_decode(payload);
+const refresh_token = async (payload: string) => {
+  const decode: JwtPayload = refresh_token_decode(payload);
 
+  if (!decode.user_id || !decode.iat)
+    throw new AppError(httpStatus.UNAUTHORIZED, "unauthorized");
+
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, decode.user_id));
+
+  if (!user) throw new AppError(httpStatus.UNAUTHORIZED, "unauthorized");
+  if (!!user.password_change_at) {
+    const password_changed_at_in_seconds = Math.floor(
+      new Date(user.password_change_at!).getTime() / 1000
+    );
+
+    if (password_changed_at_in_seconds < decode.iat)
+      throw new AppError(httpStatus.UNAUTHORIZED, "unauthorized");
+  }
   const access_token = access_token_encode({
     id: user.id,
     name: user.name!,
@@ -105,13 +120,7 @@ const refresh_token = (payload: string) => {
     email: user.email!,
     role: user.role!,
   });
-  const refresh_token = refresh_token_encode({
-    id: user.id,
-    name: user.name!,
-    phone_number: user.phone_number!,
-    email: user.email!,
-    role: user.role!,
-  });
+  const refresh_token = refresh_token_encode(user.id);
 
   return {
     access_token,
@@ -119,9 +128,45 @@ const refresh_token = (payload: string) => {
   };
 };
 
+const change_auth_info = async (
+  user_id: string,
+  payload: i_change_auth_info
+) => {
+  console.log({ payload });
+  const [user] = await db.select().from(users).where(eq(users.id, user_id));
+
+  if (!user) throw new AppError(httpStatus.UNAUTHORIZED, "unauthorized");
+
+  if (!!payload.old_password && !!payload.new_password) {
+    const is_match = await bcrypt.compare(payload.old_password, user.password);
+
+    if (!is_match) throw new AppError(httpStatus.UNAUTHORIZED, "unauthorized");
+
+    const hash_password = await bcrypt.hash(
+      payload.new_password,
+      config.bcrypt_salt_rounds
+    );
+
+    const updated_data: {
+      password: string;
+      password_change_at: Date;
+    } = { password: hash_password, password_change_at: new Date() };
+
+    await db.update(users).set(updated_data).where(eq(users.id, user_id));
+  } else {
+    if (payload.name) {
+      await db
+        .update(users)
+        .set({ name: payload.name })
+        .where(eq(users.id, user_id));
+    }
+  }
+};
+
 export const auth_services = {
   register_user,
   login_user,
   get_me,
   refresh_token,
+  change_auth_info,
 };

@@ -23,5 +23,12 @@ router.get(
   validate_request(auth_validators.refresh_token),
   auth_controllers.refresh_token
 );
+router.put(
+  "/update-info",
+  auth(["student", "admin", "super-admin"]),
+  validate_request(auth_validators.change_auth_info),
+
+  auth_controllers.change_auth_info
+);
 
 export const auth_routes = router;

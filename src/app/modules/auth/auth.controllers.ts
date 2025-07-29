@@ -42,9 +42,6 @@ const login_user = catch_async(async (req, res) => {
   });
 });
 const get_me = catch_async(async (req, res) => {
-  // const access_token = req.cookies.access_token;
-
-  // const user = auth_services.get_me(access_token);
   send_response(res, {
     success: true,
     status_code: httpStatus.OK,
@@ -67,10 +64,24 @@ const refresh_token = catch_async(async (req, res) => {
     },
   });
 });
+const change_auth_info = catch_async(async (req, res) => {
+  await auth_services.change_auth_info(req.user.id, req.body);
+  const { access_token, refresh_token } = await auth_services.refresh_token(
+    req.cookies.refresh_token
+  );
+  set_tokens(res, { access_token, refresh_token });
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    message: "user info updated successfully",
+    data: { access_token, refresh_token },
+  });
+});
 
 export const auth_controllers = {
   register_user,
   login_user,
   get_me,
   refresh_token,
+  change_auth_info,
 };

@@ -45,9 +45,26 @@ const refresh_token = z.object({
   }),
 });
 
+const change_auth_info = z.object({
+  body: z.object({
+    name: required_string.optional(),
+    old_password: z
+      .string()
+      .regex(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,16}$/)
+      .trim()
+      .optional(),
+    new_password: z
+      .string()
+      .regex(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,16}$/)
+      .trim()
+      .optional(),
+  }),
+});
+
 export const auth_validators = {
   register_user,
   login_user,
   assess_token,
   refresh_token,
+  change_auth_info,
 };

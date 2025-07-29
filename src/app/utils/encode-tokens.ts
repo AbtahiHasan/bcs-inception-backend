@@ -16,8 +16,8 @@ export const access_token_encode = (user: i_user) => {
 
   return token;
 };
-export const refresh_token_encode = (user: i_user) => {
-  const token = jwt.sign(user, config.jwt.refresh_secret, {
+export const refresh_token_encode = (user_id: string) => {
+  const token = jwt.sign({ user_id }, config.jwt.refresh_secret, {
     algorithm: "HS256",
     expiresIn: config.jwt.refresh_expires_in as any,
   });
