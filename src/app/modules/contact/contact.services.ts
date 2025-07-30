@@ -1,4 +1,4 @@
-import { count } from "drizzle-orm";
+import { count, desc } from "drizzle-orm";
 import { contacts } from "../../../../drizzle/schema";
 import { db } from "../../../db";
 import { i_contact } from "./contact.interface";
@@ -17,6 +17,7 @@ const get_contacts = async (params: exam_query_params) => {
   const results_promise = await db
     .select()
     .from(contacts)
+    .orderBy(desc(contacts.created_at))
     .offset(Number(offset))
     .limit(Number(limit));
 

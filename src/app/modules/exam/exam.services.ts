@@ -10,7 +10,7 @@ import {
 import { db } from "../../../db";
 import AppError from "../../errors/app-error";
 import { i_exam, i_exam_mcq, i_user_exam_ans } from "./exam.interface";
-import { and, count, eq, ilike, like, lt, not } from "drizzle-orm";
+import { and, count, desc, eq, ilike, like, lt, not } from "drizzle-orm";
 
 const create_exam = async (payload: i_exam) => {
   const [result] = await db
@@ -182,6 +182,7 @@ const get_exams = async (params: exam_query_params, user_id: string) => {
     .select()
     .from(exams)
     .where(where_clauses.length ? and(...where_clauses) : undefined)
+    .orderBy(desc(exams.exam_date))
     .leftJoin(subjects, eq(subjects.id, exams.subject_id))
     .leftJoin(topics, eq(topics.id, exams.topic_id))
     .offset(Number(offset))

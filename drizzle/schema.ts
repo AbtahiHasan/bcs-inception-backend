@@ -48,6 +48,7 @@ export const contacts = pgTable("contacts", {
 export const subjects = pgTable("subjects", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: varchar("title", { length: 255 }).unique().notNull(),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
 export const subjects_relations = relations(subjects, ({ many }) => ({
@@ -64,6 +65,7 @@ export const topics = pgTable("topics", {
     })
     .notNull(),
   title: varchar("title", { length: 255 }).notNull(),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
 export const topics_relations = relations(topics, ({ one, many }) => ({

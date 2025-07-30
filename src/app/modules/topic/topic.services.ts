@@ -1,3 +1,4 @@
+import { desc } from "drizzle-orm";
 import { topics } from "../../../../drizzle/schema";
 import { db } from "../../../db";
 
@@ -10,7 +11,10 @@ const create_topic = async (payload: { title: string; subject_id: string }) => {
   return result;
 };
 const get_all_topics = async () => {
-  const result = await db.select().from(topics);
+  const result = await db
+    .select()
+    .from(topics)
+    .orderBy(desc(topics.created_at));
 
   return result;
 };
