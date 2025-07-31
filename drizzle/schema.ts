@@ -129,7 +129,9 @@ export const mcqs = pgTable("mcqs", {
     })
     .notNull(),
   question: text("question").notNull(),
+  question_image: text("question_image"),
   explanation: text("explanation").notNull(),
+  explanation_image: text("explanation_image"),
   ans_tag: ans_tag_enum("ans_tag").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

@@ -36,7 +36,9 @@ const create_mcq = async (payload: i_exam_mcq) => {
     const mcq_data = {
       exam_id,
       question: payload.question,
+      question_image: payload.question_image,
       explanation: payload.explanation,
+      explanation_image: payload.explanation_image,
       ans_tag: payload.ans_tag as "A" | "B" | "C" | "D",
     };
     const [mcq] = await tx.insert(mcqs).values(mcq_data).returning();
@@ -59,6 +61,7 @@ const create_mcq = async (payload: i_exam_mcq) => {
 };
 
 const create_bulk_mcqs = async (payload: i_exam_mcq[]) => {
+  console.log({ payload });
   const promises: any = [];
   payload.forEach((item) => {
     promises.push(create_mcq(item));
@@ -95,7 +98,9 @@ const get_exam = async (id: string, exam_status: exam_status) => {
           id: mcq.id,
           exam_id: mcq.exam_id,
           question: mcq.question,
+          question_image: mcq.question_image,
           explanation: mcq.explanation,
+          explanation_image: mcq.explanation_image,
           created_at: mcq.created_at,
         },
         ...(exam_status == "result" && { ans_tag: mcq.ans_tag }),
