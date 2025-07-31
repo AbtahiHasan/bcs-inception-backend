@@ -12,11 +12,28 @@ router.post(
   validate_request(exam_validators.create_exam),
   exam_controllers.create_exam
 );
+router.put(
+  "/update/:id",
+  auth(["admin", "super_admin"]),
+  validate_request(exam_validators.create_exam),
+  exam_controllers.update_exam
+);
 router.post(
   "/mcq/create",
   auth(["admin", "super_admin"]),
   validate_request(exam_validators.create_mcq),
   exam_controllers.create_mcq
+);
+router.put(
+  "/mcq/update/:id",
+  auth(["admin", "super_admin"]),
+  validate_request(exam_validators.create_mcq),
+  exam_controllers.update_mcq
+);
+router.delete(
+  "/mcq/:id",
+  auth(["admin", "super_admin"]),
+  exam_controllers.delete_mcq
 );
 router.post(
   "/mcq/bulk-create",

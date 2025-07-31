@@ -28,6 +28,20 @@ const create_exam = async (payload: i_exam) => {
 
   return result;
 };
+const update_exam = async (exam_id: string, payload: i_exam) => {
+  await db
+    .update(exams)
+    .set({
+      exam_code: payload.exam_code,
+      exam_type: payload.exam_type,
+      title: payload.title,
+      duration: payload.duration,
+      exam_date: new Date(payload.exam_date),
+      subject_id: payload.subject_id,
+      topic_id: payload.topic_id,
+    })
+    .where(eq(exams.id, exam_id));
+};
 
 const create_mcq = async (payload: i_exam_mcq) => {
   const result = db.transaction(async (tx) => {
@@ -58,6 +72,33 @@ const create_mcq = async (payload: i_exam_mcq) => {
   });
 
   return result;
+};
+const update_mcq = async (mcq_id: string, payload: i_exam_mcq) => {
+  db.transaction(async (tx) => {
+    await tx
+      .update(mcqs)
+      .set({
+        question: payload.question,
+        question_image: payload.question_image,
+        explanation: payload.explanation,
+        explanation_image: payload.explanation_image,
+        ans_tag: payload.ans_tag as "A" | "B" | "C" | "D",
+      })
+      .where(eq(mcqs.id, mcq_id));
+
+    await tx.delete(options).where(eq(options.mcq_id, mcq_id));
+
+    const option_inserts = payload.options.map((opt) => ({
+      mcq_id: mcq_id,
+      tag: opt.tag as "A" | "B" | "C" | "D",
+      option: opt.option,
+    }));
+
+    await tx.insert(options).values(option_inserts);
+  });
+};
+const delete_mcq = async (mcq_id: string) => {
+  await db.delete(mcqs).where(eq(mcqs.id, mcq_id));
 };
 
 const create_bulk_mcqs = async (payload: i_exam_mcq[]) => {
@@ -268,7 +309,10 @@ const get_user_taken_exams = async (user_id: string) => {
 
 export const exam_services = {
   create_exam,
+  update_exam,
   create_mcq,
+  update_mcq,
+  delete_mcq,
   create_bulk_mcqs,
   get_exam,
   get_exams,

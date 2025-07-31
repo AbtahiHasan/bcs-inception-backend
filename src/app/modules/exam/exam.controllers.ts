@@ -12,6 +12,16 @@ const create_exam = catch_async(async (req, res) => {
     data: result,
   });
 });
+const update_exam = catch_async(async (req, res) => {
+  await exam_services.update_exam(req.params.id, req.body);
+
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    message: "exam update successfully",
+    data: null,
+  });
+});
 const create_mcq = catch_async(async (req, res) => {
   const result = await exam_services.create_mcq(req.body);
 
@@ -19,6 +29,26 @@ const create_mcq = catch_async(async (req, res) => {
     success: true,
     status_code: httpStatus.OK,
     message: "mcq created successfully",
+    data: result,
+  });
+});
+const update_mcq = catch_async(async (req, res) => {
+  const result = await exam_services.update_mcq(req.params.id, req.body);
+
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    message: "mcq updated successfully",
+    data: result,
+  });
+});
+const delete_mcq = catch_async(async (req, res) => {
+  const result = await exam_services.delete_mcq(req.params.id);
+
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    message: "mcq deleted successfully",
     data: result,
   });
 });
@@ -102,7 +132,10 @@ const get_user_taken_exams = catch_async(async (req, res) => {
 
 export const exam_controllers = {
   create_exam,
+  update_exam,
   create_mcq,
+  update_mcq,
+  delete_mcq,
   create_bulk_mcqs,
   get_exam,
   get_exams,

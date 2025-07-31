@@ -23,9 +23,7 @@ const create_mcq = z.object({
   body: z.object({
     exam_id: required_string,
     question: required_string,
-    question_image: required_string.optional(),
     explanation: required_string,
-    explanation_image: required_string.optional(),
     ans_tag: z.enum(["A", "B", "C", "D"]),
     options: z.array(
       z.object({
