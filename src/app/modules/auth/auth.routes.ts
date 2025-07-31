@@ -14,7 +14,7 @@ router.post(
 router.post("/login-user", auth_controllers.login_user);
 router.get(
   "/me",
-  auth(["student", "admin", "super-admin"]),
+  auth(["student", "admin", "super_admin"]),
   validate_request(auth_validators.assess_token),
   auth_controllers.get_me
 );
@@ -25,14 +25,14 @@ router.get(
 );
 router.put(
   "/update-info",
-  auth(["student", "admin", "super-admin"]),
+  auth(["student", "admin", "super_admin"]),
   validate_request(auth_validators.change_auth_info),
 
   auth_controllers.change_auth_info
 );
 router.post(
   "/logout",
-  auth(["student", "admin", "super-admin"]),
+  auth(["student", "admin", "super_admin"]),
 
   auth_controllers.logout
 );

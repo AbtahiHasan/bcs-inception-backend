@@ -5,6 +5,7 @@ import { topic_routes } from "./modules/topic/topic.routes";
 import { exam_routes } from "./modules/exam/exam.routes";
 import { contact_routes } from "./modules/contact/contact.routes";
 import { user_routes } from "./modules/user/user.routes";
+import { analytics_routes } from "./modules/analytics/analytics.routes";
 
 type TRoute = {
   path: string;
@@ -36,6 +37,10 @@ const moduleRoutes: TRoute[] = [
   {
     path: "/user",
     route: user_routes,
+  },
+  {
+    path: "/analytics",
+    route: analytics_routes,
   },
 ];
 

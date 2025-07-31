@@ -8,13 +8,13 @@ const router = Router();
 
 router.post(
   "/create",
-  auth(["admin", "super-admin"]),
+  auth(["admin", "super_admin"]),
   validate_request(topic_validators.create_topic),
   topic_controllers.create_topic
 );
 router.get(
   "/",
-  auth(["student", "admin", "super-admin"]),
+  auth(["student", "admin", "super_admin"]),
   topic_controllers.get_all_topics
 );
 

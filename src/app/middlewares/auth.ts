@@ -5,7 +5,7 @@ import catch_async from "../utils/catch-async";
 import AppError from "../errors/app-error";
 import config from "../../config";
 
-const auth = (roles: ("student" | "admin" | "super-admin")[]) => {
+const auth = (roles: ("student" | "admin" | "super_admin")[]) => {
   return catch_async(
     async (req: Request, res: Response, next: NextFunction) => {
       const token = req.cookies.access_token;

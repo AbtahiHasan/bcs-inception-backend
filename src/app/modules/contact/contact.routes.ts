@@ -13,7 +13,7 @@ router.post(
 );
 router.get(
   "/",
-  auth(["admin", "super-admin"]),
+  auth(["admin", "super_admin"]),
   contact_controllers.get_contacts
 );
 

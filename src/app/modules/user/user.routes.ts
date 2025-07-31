@@ -7,11 +7,11 @@ import { user_validators } from "./user.validators";
 
 const router = Router();
 
-router.get("/", auth(["admin", "super-admin"]), user_controllers.get_users);
+router.get("/", auth(["admin", "super_admin"]), user_controllers.get_users);
 
 router.put(
   "/update-role",
-  auth(["super-admin"]),
+  auth(["super_admin"]),
   validate_request(user_validators.update_user_role),
   user_controllers.update_user_role
 );
