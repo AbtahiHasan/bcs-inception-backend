@@ -33,6 +33,24 @@ export const user_relations = relations(users, ({ many }) => ({
   user_answers: many(user_answers),
 }));
 
+// ================= Subscriptions =================
+export const subscription_status_enum = pgEnum("subscription_status_enum", [
+  "pending",
+  "accepted",
+  "rejected",
+]);
+export const subscriptions = pgTable("subscriptions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  user_id: uuid("user_id")
+    .notNull()
+    .references(() => users.id),
+  phone_number: varchar("phone_number", { length: 20 }).notNull(),
+  transaction_id: varchar("transaction_id", { length: 255 }).notNull(),
+  status: subscription_status_enum("status").default("pending"),
+  start: timestamp("start", { withTimezone: true }).defaultNow(),
+  end: timestamp("end", { withTimezone: true }),
+});
+
 // ================= Contacts =================
 
 export const contacts = pgTable("contacts", {
@@ -189,3 +207,11 @@ export const user_answers = pgTable(
   },
   (table) => [index("exam_user_idx").on(table.exam_id, table.user_id)]
 );
+
+export const notes = pgTable("notes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  pdf_link: text("pdf_link").notNull(),
+  created_at: timestamp("created_at").defaultNow(),
+});

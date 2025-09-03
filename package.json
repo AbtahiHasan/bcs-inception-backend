@@ -7,13 +7,15 @@
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
     "start": "node dist/src/server.js",
     "build": "tsc",
-    "generate:db": "drizzle-kit generate"
+    "generate:db": "drizzle-kit generate",
+    "seed": "ts-node-dev --respawn --transpile-only ./src/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.13.1",
   "dependencies": {
+    "@faker-js/faker": "^10.0.0",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "cookie-parser": "^1.4.7",

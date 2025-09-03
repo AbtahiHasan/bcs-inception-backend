@@ -173,7 +173,7 @@ interface exam_query_params {
     | "free";
   subject_id?: string;
   user_id?: string;
-  selected_status?: "Not Taken Yet" | "Already Taken" | "Absent";
+  selected_status?: "Not Taken Yet" | "Already Taken";
 }
 const get_exams = async (params: exam_query_params, user_id: string) => {
   const {

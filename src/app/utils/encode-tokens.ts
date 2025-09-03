@@ -7,6 +7,7 @@ interface i_user {
   email: string;
   phone_number: string;
   role: "student" | "admin" | "super_admin";
+  subscription_status: "active" | "expired" | "none";
 }
 export const access_token_encode = (user: i_user) => {
   const token = jwt.sign(user, config.jwt.access_secret, {

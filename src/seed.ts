@@ -1,0 +1,147 @@
+import { faker } from "@faker-js/faker";
+import { db } from "./db"; // drizzle db instance
+import {
+  users,
+  subscriptions,
+  contacts,
+  subjects,
+  topics,
+  exams,
+  mcqs,
+  options,
+  user_answers,
+} from "../drizzle/schema";
+
+async function seed() {
+  // 1. Users
+  const userData = Array.from({ length: 20 }).map(() => ({
+    id: faker.string.uuid(),
+    name: faker.person.fullName(),
+    email: faker.internet.email(),
+    phone_number: faker.helpers.replaceSymbols("+8801#########"),
+    password: faker.internet.password(),
+    password_change_at: faker.date.recent(),
+    role: faker.helpers.arrayElement(["student", "admin", "super_admin"]) as
+      | "student"
+      | "admin"
+      | "super_admin",
+    created_at: faker.date.past(),
+  }));
+  await db.insert(users).values(userData);
+
+  // 2. Subscriptions
+  const subsData = Array.from({ length: 50 }).map(() => ({
+    id: faker.string.uuid(),
+    userId: faker.helpers.arrayElement(userData).id,
+    phoneNumber: faker.helpers.replaceSymbols("+8801#########"),
+    translationId: faker.string.alphanumeric(10),
+    start: faker.date.past(),
+    end: faker.date.future(),
+  }));
+  await db.insert(subscriptions).values(subsData);
+
+  // 3. Contacts
+  const contactsData = Array.from({ length: 30 }).map(() => ({
+    id: faker.string.uuid(),
+    name: faker.person.fullName(),
+    email: faker.internet.email(),
+    phone_number: faker.helpers.replaceSymbols("+8801#########"),
+    subject: faker.lorem.words(3),
+    message: faker.lorem.sentence({ min: 10, max: 20 }),
+    created_at: faker.date.past(),
+  }));
+  await db.insert(contacts).values(contactsData);
+
+  // 4. Subjects
+  const subjectsData = Array.from({ length: 5 }).map(() => ({
+    id: faker.string.uuid(),
+    title: faker.word.words(2),
+    created_at: faker.date.past(),
+  }));
+  await db.insert(subjects).values(subjectsData);
+
+  // 5. Topics
+  const topicsData = subjectsData.flatMap((subj) =>
+    Array.from({ length: 3 }).map(() => ({
+      id: faker.string.uuid(),
+      subject_id: subj.id,
+      title: faker.word.words(3),
+      created_at: faker.date.past(),
+    }))
+  );
+  await db.insert(topics).values(topicsData);
+
+  // 6. Exams
+  const examsData = topicsData.flatMap((topic) =>
+    Array.from({ length: 2 }).map(() => ({
+      id: faker.string.uuid(),
+      exam_code: faker.string.alphanumeric(8),
+      exam_type: faker.helpers.arrayElement([
+        "daily",
+        "weekly",
+        "monthly",
+        "practice",
+        "question bank",
+      ]),
+      title: faker.lorem.sentence({ min: 3, max: 6 }),
+      duration: faker.number.int({ min: 30, max: 180 }),
+      exam_date: faker.date.future(),
+      subject_id: topic.subject_id,
+      topic_id: topic.id,
+      created_at: faker.date.past(),
+    }))
+  );
+  await db.insert(exams).values(examsData);
+
+  // 7. MCQs
+  const mcqsData = examsData.flatMap((exam) =>
+    Array.from({ length: 5 }).map(() => ({
+      id: faker.string.uuid(),
+      exam_id: exam.id,
+      question: faker.lorem.sentence({ min: 6, max: 12 }),
+      question_image: faker.datatype.boolean() ? faker.image.url() : null,
+      explanation: faker.lorem.sentence({ min: 10, max: 15 }),
+      explanation_image: faker.datatype.boolean() ? faker.image.url() : null,
+      ans_tag: faker.helpers.arrayElement(["A", "B", "C", "D"]) as
+        | "A"
+        | "B"
+        | "C"
+        | "D",
+      created_at: faker.date.past(),
+    }))
+  );
+  await db.insert(mcqs).values(mcqsData);
+
+  // 8. Options
+  const optionsData = mcqsData.flatMap((mcq) =>
+    ["A", "B", "C", "D"].map((tag) => ({
+      id: faker.string.uuid(),
+      mcq_id: mcq.id,
+      tag: tag as "A" | "B" | "C" | "D",
+      option: faker.lorem.words(5),
+    }))
+  );
+  await db.insert(options).values(optionsData);
+
+  // 9. User Answers
+  const answersData = Array.from({ length: 100 }).map(() => {
+    const mcq = faker.helpers.arrayElement(mcqsData);
+    const exam = examsData.find((e) => e.id === mcq.exam_id)!;
+    return {
+      id: faker.string.uuid(),
+      exam_id: exam.id,
+      user_id: faker.helpers.arrayElement(userData).id,
+      mcq_id: mcq.id,
+      ans_tag: faker.helpers.arrayElement(["A", "B", "C", "D"]) as
+        | "A"
+        | "B"
+        | "C"
+        | "D",
+    };
+  });
+  await db.insert(user_answers).values(answersData);
+
+  console.log("✅ Database seeded with correct dummy data!");
+}
+
+seed().catch(console.error);

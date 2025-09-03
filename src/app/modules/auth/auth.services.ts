@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
-import { eq, or } from "drizzle-orm";
+import { desc, eq, or } from "drizzle-orm";
 import httpStatus from "http-status";
-import { users } from "../../../../drizzle/schema";
+import { subscriptions, users } from "../../../../drizzle/schema";
 import config from "../../../config";
 import { db } from "../../../db";
 import AppError from "../../errors/app-error";
@@ -19,6 +19,7 @@ import {
   i_register_user,
 } from "./auth.interfaces";
 import { JwtPayload } from "jsonwebtoken";
+import { start } from "repl";
 
 const register_user = async (payload: i_register_user) => {
   const [user] = await db
@@ -98,7 +99,18 @@ const refresh_token = async (payload: string) => {
 
   if (!decode.user_id || !decode.iat)
     throw new AppError(httpStatus.UNAUTHORIZED, "unauthorized");
-
+  const [last_subscription] = await db
+    .select({
+      id: subscriptions.id,
+      user_id: subscriptions.user_id,
+      status: subscriptions.status,
+      start: subscriptions.start,
+      end: subscriptions.end,
+    })
+    .from(subscriptions)
+    .where(eq(subscriptions.user_id, decode.user_id))
+    .orderBy(desc(subscriptions.start))
+    .limit(1);
   const [user] = await db
     .select()
     .from(users)
@@ -113,12 +125,20 @@ const refresh_token = async (payload: string) => {
     if (password_changed_at_in_seconds < decode.iat)
       throw new AppError(httpStatus.UNAUTHORIZED, "unauthorized");
   }
+
+  let subscription_status: "active" | "expired" | "none";
+
+  if (!last_subscription?.id) subscription_status = "none";
+  else if (!last_subscription.end || last_subscription.end > new Date())
+    subscription_status = "active";
+  else subscription_status = "expired";
   const access_token = access_token_encode({
     id: user.id,
     name: user.name!,
     phone_number: user.phone_number!,
     email: user.email!,
     role: user.role!,
+    subscription_status,
   });
   const refresh_token = refresh_token_encode(user.id);
 
