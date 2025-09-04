@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { desc, eq, or } from "drizzle-orm";
 import httpStatus from "http-status";
+import { JwtPayload } from "jsonwebtoken";
 import { subscriptions, users } from "../../../../drizzle/schema";
 import config from "../../../config";
 import { db } from "../../../db";
@@ -18,8 +19,6 @@ import {
   i_login_user,
   i_register_user,
 } from "./auth.interfaces";
-import { JwtPayload } from "jsonwebtoken";
-import { start } from "repl";
 
 const register_user = async (payload: i_register_user) => {
   const [user] = await db
@@ -75,12 +74,31 @@ const login_user = async (payload: i_login_user) => {
   if (!is_match)
     throw new AppError(httpStatus.BAD_REQUEST, "invalid credentials");
 
+  const [last_subscription] = await db
+    .select({
+      id: subscriptions.id,
+      user_id: subscriptions.user_id,
+      status: subscriptions.status,
+      start: subscriptions.start,
+      end: subscriptions.end,
+    })
+    .from(subscriptions)
+    .where(eq(subscriptions.user_id, user.id))
+    .orderBy(desc(subscriptions.start))
+    .limit(1);
+
+  let subscription_status: "active" | "expired" | "none";
+  if (!last_subscription?.id) subscription_status = "none";
+  else if (!last_subscription.end || last_subscription.end > new Date())
+    subscription_status = "active";
+  else subscription_status = "expired";
   const access_token = access_token_encode({
     id: user.id,
     name: user.name!,
     phone_number: user.phone_number!,
     email: user.email!,
     role: user.role!,
+    subscription_status,
   });
   const refresh_token = refresh_token_encode(user.id);
 

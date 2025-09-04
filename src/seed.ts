@@ -32,13 +32,14 @@ async function seed() {
   // 2. Subscriptions
   const subsData = Array.from({ length: 50 }).map(() => ({
     id: faker.string.uuid(),
-    userId: faker.helpers.arrayElement(userData).id,
-    phoneNumber: faker.helpers.replaceSymbols("+8801#########"),
-    translationId: faker.string.alphanumeric(10),
+    user_id: faker.helpers.arrayElement(userData).id,
+    phone_number: faker.helpers.replaceSymbols("+8801#########"),
+    transaction_id: faker.string.alphanumeric(10),
     start: faker.date.past(),
     end: faker.date.future(),
+    status: "pending",
   }));
-  await db.insert(subscriptions).values(subsData);
+  await db.insert(subscriptions).values(subsData as any);
 
   // 3. Contacts
   const contactsData = Array.from({ length: 30 }).map(() => ({
