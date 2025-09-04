@@ -7,6 +7,7 @@ import { contact_routes } from "./modules/contact/contact.routes";
 import { user_routes } from "./modules/user/user.routes";
 import { analytics_routes } from "./modules/analytics/analytics.routes";
 import { subscription_routes } from "./modules/subscription/subscription.routes";
+import { note_routes } from "./modules/note/note.routes";
 
 type TRoute = {
   path: string;
@@ -46,6 +47,10 @@ const moduleRoutes: TRoute[] = [
   {
     path: "/subscription",
     route: subscription_routes,
+  },
+  {
+    path: "/note",
+    route: note_routes,
   },
 ];
 
