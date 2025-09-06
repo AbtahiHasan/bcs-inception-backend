@@ -4,7 +4,6 @@ import { subject_services } from "./subject.services";
 import httpStatus from "http-status";
 
 const create_subject = catch_async(async (req, res) => {
-  console.log({ body: req.body });
   const result = await subject_services.create_subject(req.body);
 
   send_response(res, {

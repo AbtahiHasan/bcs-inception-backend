@@ -172,7 +172,6 @@ const change_auth_info = async (
   user_id: string,
   payload: i_change_auth_info
 ) => {
-  console.log({ payload });
   const [user] = await db.select().from(users).where(eq(users.id, user_id));
 
   if (!user) throw new AppError(httpStatus.UNAUTHORIZED, "unauthorized");

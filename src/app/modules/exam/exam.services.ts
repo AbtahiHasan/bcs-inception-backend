@@ -10,7 +10,17 @@ import {
 import { db } from "../../../db";
 import AppError from "../../errors/app-error";
 import { i_exam, i_exam_mcq, i_user_exam_ans } from "./exam.interface";
-import { and, count, desc, eq, ilike, like, lt, not } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  like,
+  lt,
+  not,
+} from "drizzle-orm";
 
 const create_exam = async (payload: i_exam) => {
   const [result] = await db
@@ -102,7 +112,6 @@ const delete_mcq = async (mcq_id: string) => {
 };
 
 const create_bulk_mcqs = async (payload: i_exam_mcq[]) => {
-  console.log({ payload });
   const promises: any = [];
   payload.forEach((item) => {
     promises.push(create_mcq(item));
@@ -213,14 +222,11 @@ const get_exams = async (params: exam_query_params, user_id: string) => {
   if (selected_status) {
     const ids = await get_user_taken_exams(user_id);
 
-    if (selected_status == "Already Taken")
-      ids.forEach((id) => {
-        where_clauses.push(eq(exams.id, id));
-      });
-    else if (selected_status == "Not Taken Yet") {
-      ids.forEach((id) => {
-        where_clauses.push(not(eq(exams.id, id)));
-      });
+    if (selected_status === "Already Taken") {
+      where_clauses.push(inArray(exams.id, ids));
+    }
+    if (selected_status === "Not Taken Yet") {
+      where_clauses.push(not(inArray(exams.id, ids)));
     }
   }
 

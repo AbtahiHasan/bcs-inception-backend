@@ -14,7 +14,7 @@ router.post(
 );
 router.get(
   "/my",
-  auth(["student"]),
+  auth(["student", "admin", "super_admin"]),
   subscription_controllers.get_my_subscriptions_history
 );
 router.get(

@@ -15,7 +15,7 @@ export const app: Application = express();
 // cors
 
 const origins = JSON.parse(JSON.stringify(config.origin)).split(",");
-console.log("origin", origins);
+
 app.use(
   cors({
     origin: origins,
