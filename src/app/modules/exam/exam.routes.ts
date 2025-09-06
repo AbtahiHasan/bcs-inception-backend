@@ -52,7 +52,11 @@ router.get(
   auth(["student", "admin", "super_admin"]),
   exam_controllers.get_user_taken_exams
 );
-router.get("/:id", auth(["admin", "super_admin"]), exam_controllers.get_exam);
+router.get(
+  "/:id",
+  auth(["student", "admin", "super_admin"]),
+  exam_controllers.get_exam
+);
 router.delete(
   "/:id",
   auth(["admin", "super_admin"]),

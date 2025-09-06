@@ -8,27 +8,33 @@ import httpStatus from "http-status";
 const register_user = catch_async(async (req, res) => {
   const password = req.body.password;
   const result = await auth_services.register_user(req.body);
-
+  let new_result = null;
   if (!!result) {
-    console.log({
-      email: result.email!,
-      password: password,
-    });
-    await auth_services.login_user({
+    new_result = await auth_services.login_user({
       email: result.email!,
       password: password,
     });
   }
+
   send_response(res, {
     success: true,
     status_code: httpStatus.OK,
-    data: result,
+    data: {
+      user: {
+        id: new_result?.user?.id,
+        name: new_result?.user?.name,
+        phone_number: new_result?.user?.phone_number,
+        email: new_result?.user?.email,
+        role: new_result?.user?.role,
+        subscription_status: new_result?.subscription_status,
+      },
+      token: new_result?.access_token,
+    },
   });
 });
 const login_user = catch_async(async (req, res) => {
-  const { access_token, refresh_token } = await auth_services.login_user(
-    req.body
-  );
+  const { access_token, refresh_token, user, subscription_status } =
+    await auth_services.login_user(req.body);
 
   set_tokens(res, { access_token, refresh_token });
 
@@ -36,16 +42,24 @@ const login_user = catch_async(async (req, res) => {
     success: true,
     status_code: httpStatus.OK,
     data: {
-      access_token,
-      refresh_token,
+      user: {
+        id: user?.id,
+        name: user?.name,
+        phone_number: user?.phone_number,
+        email: user?.email,
+        role: user?.role,
+        subscription_status,
+      },
+      token: access_token,
     },
   });
 });
 const get_me = catch_async(async (req, res) => {
+  const token = req.cookies.access_token;
   send_response(res, {
     success: true,
     status_code: httpStatus.OK,
-    data: req.user,
+    data: { user: req.user, token },
   });
 });
 const refresh_token = catch_async(async (req, res) => {

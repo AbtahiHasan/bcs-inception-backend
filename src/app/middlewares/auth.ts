@@ -23,10 +23,9 @@ const auth = (roles: ("student" | "admin" | "super_admin")[]) => {
         throw new AppError(httpStatus.NOT_FOUND, "This user is not found !");
       }
 
-      //TODO uncomment this conditions
-      //   if (!roles.includes(user.role)) {
-      //     throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
-      //   }
+      if (!roles.includes(user.role)) {
+        throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
+      }
 
       req.user = user as JwtPayload;
       next();

@@ -103,6 +103,8 @@ const login_user = async (payload: i_login_user) => {
   const refresh_token = refresh_token_encode(user.id);
 
   return {
+    user,
+    subscription_status,
     access_token,
     refresh_token,
   };
