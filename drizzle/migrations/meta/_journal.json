@@ -5,134 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1752921399759,
-      "tag": "0000_aberrant_bromley",
+      "when": 1761193538853,
+      "tag": "0000_living_thor",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1753015995532,
-      "tag": "0001_third_shotgun",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1753162288002,
-      "tag": "0002_premium_shaman",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1753163088171,
-      "tag": "0003_dizzy_vision",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1753183186853,
-      "tag": "0004_watery_hitman",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1753604379407,
-      "tag": "0005_clean_banshee",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1753606789284,
-      "tag": "0006_medical_serpent_society",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1753692743458,
-      "tag": "0007_plain_maria_hill",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1753692928706,
-      "tag": "0008_lethal_wilson_fisk",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1753706835472,
-      "tag": "0009_soft_thunderbolts",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1753708919394,
-      "tag": "0010_clammy_junta",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "7",
-      "when": 1753779449667,
-      "tag": "0011_mute_masque",
-      "breakpoints": true
-    },
-    {
-      "idx": 12,
-      "version": "7",
-      "when": 1753854593344,
-      "tag": "0012_demonic_ben_parker",
-      "breakpoints": true
-    },
-    {
-      "idx": 13,
-      "version": "7",
-      "when": 1753880048696,
-      "tag": "0013_organic_the_initiative",
-      "breakpoints": true
-    },
-    {
-      "idx": 14,
-      "version": "7",
-      "when": 1756873066028,
-      "tag": "0014_slow_charles_xavier",
-      "breakpoints": true
-    },
-    {
-      "idx": 15,
-      "version": "7",
-      "when": 1756875565240,
-      "tag": "0015_heavy_marrow",
-      "breakpoints": true
-    },
-    {
-      "idx": 16,
-      "version": "7",
-      "when": 1756876321935,
-      "tag": "0016_melted_silverclaw",
-      "breakpoints": true
-    },
-    {
-      "idx": 17,
-      "version": "7",
-      "when": 1756876479888,
-      "tag": "0017_optimal_psynapse",
-      "breakpoints": true
-    },
-    {
-      "idx": 18,
-      "version": "7",
-      "when": 1756878620594,
-      "tag": "0018_thin_killer_shrike",
+      "when": 1761196364512,
+      "tag": "0001_sticky_micromacro",
       "breakpoints": true
     }
   ]

@@ -23,7 +23,7 @@ const create_mcq = z.object({
   body: z.object({
     exam_id: required_string,
     question: required_string,
-    explanation: required_string,
+    explanation: z.string().trim().optional(),
     ans_tag: z.enum(["A", "B", "C", "D"]),
     options: z.array(
       z.object({
@@ -39,7 +39,7 @@ const create_bulk_mcqs = z.object({
     .object({
       exam_id: required_string,
       question: required_string,
-      explanation: required_string,
+      explanation: z.string().trim().optional(),
       ans_tag: z.enum(["A", "B", "C", "D"]),
       options: z.array(
         z.object({

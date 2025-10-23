@@ -1,1 +1,0 @@
-DROP INDEX "exam_user_idx";

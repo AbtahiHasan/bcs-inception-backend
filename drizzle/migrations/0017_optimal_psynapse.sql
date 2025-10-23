@@ -1,2 +1,0 @@
-CREATE TYPE "public"."subscription_status_enum" AS ENUM('pending', 'accepted', 'rejected');--> statement-breakpoint
-ALTER TABLE "subscriptions" ADD COLUMN "status" "subscription_status_enum" DEFAULT 'pending';

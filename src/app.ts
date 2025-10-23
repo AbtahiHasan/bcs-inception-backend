@@ -2,13 +2,14 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import express, { Application, Request, Response } from "express";
 import morgan from "morgan";
-
+import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
 
 import config from "./config";
 import { not_found } from "./app/middlewares/not-found";
 import { global_error_handler } from "./app/middlewares/global-error-handler";
 import router from "./app/routes";
+import { auth } from "./app/lib/auth";
 
 export const app: Application = express();
 
@@ -19,10 +20,12 @@ const origins = JSON.parse(JSON.stringify(config.origin)).split(",");
 app.use(
   cors({
     origin: origins,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    methods: ["GET", "PATCH", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
+
+app.all("/api/auth/*splat", toNodeHandler(auth));
 //parsers
 
 if (config.env === "development") app.use(morgan("dev"));

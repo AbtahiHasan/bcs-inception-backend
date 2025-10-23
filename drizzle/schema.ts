@@ -1,4 +1,3 @@
-import { relations } from "drizzle-orm";
 import {
   index,
   integer,
@@ -8,10 +7,13 @@ import {
   timestamp,
   uuid,
   varchar,
+  boolean,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-// ================= Users =================
+// ================= User & Auth =================
 
+// Roles enum
 export const user_role_enum = pgEnum("role", [
   "student",
   "admin",
@@ -19,19 +21,78 @@ export const user_role_enum = pgEnum("role", [
 ]);
 
 export const users = pgTable("users", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 255 }).unique(),
-  phone_number: varchar("phone_number", { length: 20 }).notNull(),
-  password: varchar("password", { length: 255 }).notNull(),
-  password_change_at: timestamp("password_change_at"),
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  email_verified: boolean("email_verified").default(false).notNull(),
+  phone_number: varchar("phone_number", { length: 20 }), // nullable for Better Auth
   role: user_role_enum("role").default("student"),
-  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  image: text("image"),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
-export const user_relations = relations(users, ({ many }) => ({
-  user_answers: many(user_answers),
-}));
+export const sessions = pgTable("sessions", {
+  id: text("id").primaryKey(),
+  user_id: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expires_at: timestamp("expires_at", { withTimezone: true }).notNull(),
+  ip_address: text("ip_address"),
+  user_agent: text("user_agent"),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp("updated_at", { withTimezone: true })
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const accounts = pgTable("accounts", {
+  id: text("id").primaryKey(),
+  user_id: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  account_id: text("account_id").notNull(),
+  provider_id: text("provider_id").notNull(),
+  access_token: text("access_token"),
+  refresh_token: text("refresh_token"),
+  id_token: text("id_token"),
+  access_token_expires_at: timestamp("access_token_expires_at", {
+    withTimezone: true,
+  }),
+  refresh_token_expires_at: timestamp("refresh_token_expires_at", {
+    withTimezone: true,
+  }),
+  scope: text("scope"),
+  password: text("password"),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp("updated_at", { withTimezone: true })
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const verification_tokens = pgTable("verification_tokens", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expires_at: timestamp("expires_at", { withTimezone: true }).notNull(),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
 
 // ================= Subscriptions =================
 export const subscription_status_enum = pgEnum("subscription_status_enum", [
@@ -39,9 +100,10 @@ export const subscription_status_enum = pgEnum("subscription_status_enum", [
   "accepted",
   "rejected",
 ]);
+
 export const subscriptions = pgTable("subscriptions", {
   id: uuid("id").defaultRandom().primaryKey(),
-  user_id: uuid("user_id")
+  user_id: text("user_id")
     .notNull()
     .references(() => users.id),
   phone_number: varchar("phone_number", { length: 20 }).notNull(),
@@ -52,7 +114,6 @@ export const subscriptions = pgTable("subscriptions", {
 });
 
 // ================= Contacts =================
-
 export const contacts = pgTable("contacts", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -62,6 +123,7 @@ export const contacts = pgTable("contacts", {
   message: varchar("message", { length: 1055 }).notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
+
 // ================= Subjects =================
 export const subjects = pgTable("subjects", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -69,30 +131,15 @@ export const subjects = pgTable("subjects", {
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
-export const subjects_relations = relations(subjects, ({ many }) => ({
-  topics: many(topics),
-  exams: many(exams),
-}));
-
 // ================= Topics =================
 export const topics = pgTable("topics", {
   id: uuid("id").primaryKey().defaultRandom(),
   subject_id: uuid("subject_id")
-    .references(() => subjects.id, {
-      onDelete: "cascade",
-    })
+    .references(() => subjects.id, { onDelete: "cascade" })
     .notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
-
-export const topics_relations = relations(topics, ({ one, many }) => ({
-  subject: one(subjects, {
-    fields: [topics.subject_id],
-    references: [subjects.id],
-  }),
-  exams: many(exams),
-}));
 
 // ================= Exams =================
 export const exam_type_enum = pgEnum("exam_type", [
@@ -111,40 +158,21 @@ export const exams = pgTable("exams", {
   duration: integer("duration").notNull(),
   exam_date: timestamp("exam_date", { withTimezone: true }).notNull(),
   subject_id: uuid("subject_id")
-    .references(() => subjects.id, {
-      onDelete: "cascade",
-    })
+    .references(() => subjects.id, { onDelete: "cascade" })
     .notNull(),
   topic_id: uuid("topic_id")
-    .references(() => topics.id, {
-      onDelete: "cascade",
-    })
+    .references(() => topics.id, { onDelete: "cascade" })
     .notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
-export const exams_relations = relations(exams, ({ one, many }) => ({
-  subject: one(subjects, {
-    fields: [exams.subject_id],
-    references: [subjects.id],
-  }),
-  topic: one(topics, {
-    fields: [exams.topic_id],
-    references: [topics.id],
-  }),
-  mcqs: many(mcqs),
-  user_answers: many(user_answers),
-}));
-
 // ================= MCQs =================
-
 export const ans_tag_enum = pgEnum("ans_tag", ["A", "B", "C", "D"]);
+
 export const mcqs = pgTable("mcqs", {
   id: uuid("id").primaryKey().defaultRandom(),
   exam_id: uuid("exam_id")
-    .references(() => exams.id, {
-      onDelete: "cascade",
-    })
+    .references(() => exams.id, { onDelete: "cascade" })
     .notNull(),
   question: text("question").notNull(),
   question_image: text("question_image"),
@@ -154,64 +182,43 @@ export const mcqs = pgTable("mcqs", {
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
-export const mcqs_relations = relations(mcqs, ({ one, many }) => ({
-  exam: one(exams, {
-    fields: [mcqs.exam_id],
-    references: [exams.id],
-  }),
-  options: many(options),
-  user_answers: many(user_answers),
-}));
-
 // ================= Options =================
 export const options = pgTable("options", {
   id: uuid("id").primaryKey().defaultRandom(),
   mcq_id: uuid("mcq_id")
-    .references(() => mcqs.id, {
-      onDelete: "cascade",
-    })
+    .references(() => mcqs.id, { onDelete: "cascade" })
     .notNull(),
   tag: ans_tag_enum("tag").notNull(),
   option: text("option").notNull(),
 });
 
-export const options_relations = relations(options, ({ one }) => ({
-  mcq: one(mcqs, {
-    fields: [options.mcq_id],
-    references: [mcqs.id],
-  }),
-}));
-
 // ================= User Answers =================
-
 export const user_answers = pgTable(
   "user_answers",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     exam_id: uuid("exam_id")
-      .references(() => exams.id, {
-        onDelete: "cascade",
-      })
+      .references(() => exams.id, { onDelete: "cascade" })
       .notNull(),
-    user_id: uuid("user_id")
-      .references(() => users.id, {
-        onDelete: "cascade",
-      })
+    user_id: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     mcq_id: uuid("mcq_id")
-      .references(() => mcqs.id, {
-        onDelete: "cascade",
-      })
+      .references(() => mcqs.id, { onDelete: "cascade" })
       .notNull(),
     ans_tag: ans_tag_enum("ans_tag").notNull(),
   },
-  (table) => [index("exam_user_idx").on(table.exam_id, table.user_id)]
+  (table) => [
+    index("exam_user_idx").on(table.exam_id, table.user_id),
+    uniqueIndex("user_mcq_unique").on(table.user_id, table.mcq_id), // prevent duplicate answers
+  ]
 );
 
+// ================= Notes =================
 export const notes = pgTable("notes", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
   description: text("description").notNull(),
   pdf_link: text("pdf_link").notNull(),
-  created_at: timestamp("created_at").defaultNow(),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

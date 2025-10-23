@@ -4,6 +4,8 @@ import { send_response } from "../../utils/send-response";
 import { set_tokens } from "../../utils/set-tokens";
 import { auth_services } from "./auth.services";
 import httpStatus from "http-status";
+import { fromNodeHeaders } from "better-auth/node";
+import { auth } from "../../lib/auth";
 
 const register_user = catch_async(async (req, res) => {
   const password = req.body.password;
@@ -55,11 +57,14 @@ const login_user = catch_async(async (req, res) => {
   });
 });
 const get_me = catch_async(async (req, res) => {
-  const token = req.cookies.access_token;
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
+
   send_response(res, {
     success: true,
     status_code: httpStatus.OK,
-    data: { user: req.user, token },
+    data: session,
   });
 });
 const refresh_token = catch_async(async (req, res) => {

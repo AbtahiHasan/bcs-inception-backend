@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { db } from "./db"; // drizzle db instance
 import {
-  users,
+  user,
   subscriptions,
   contacts,
   subjects,
@@ -27,7 +27,7 @@ async function seed() {
       | "super_admin",
     created_at: faker.date.past(),
   }));
-  await db.insert(users).values(userData);
+  await db.insert(user).values(userData);
 
   // 2. Subscriptions
   const subsData = Array.from({ length: 50 }).map(() => ({
