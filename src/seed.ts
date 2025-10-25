@@ -1,46 +1,15 @@
 import { faker } from "@faker-js/faker";
-import { db } from "./db"; // drizzle db instance
 import {
-  user,
-  subscriptions,
   contacts,
-  subjects,
-  topics,
   exams,
   mcqs,
   options,
-  user_answers,
+  subjects,
+  topics,
 } from "../drizzle/schema";
+import { db } from "./db"; // drizzle db instance
 
 async function seed() {
-  // 1. Users
-  const userData = Array.from({ length: 20 }).map(() => ({
-    id: faker.string.uuid(),
-    name: faker.person.fullName(),
-    email: faker.internet.email(),
-    phone_number: faker.helpers.replaceSymbols("+8801#########"),
-    password: faker.internet.password(),
-    password_change_at: faker.date.recent(),
-    role: faker.helpers.arrayElement(["student", "admin", "super_admin"]) as
-      | "student"
-      | "admin"
-      | "super_admin",
-    created_at: faker.date.past(),
-  }));
-  await db.insert(user).values(userData);
-
-  // 2. Subscriptions
-  const subsData = Array.from({ length: 50 }).map(() => ({
-    id: faker.string.uuid(),
-    user_id: faker.helpers.arrayElement(userData).id,
-    phone_number: faker.helpers.replaceSymbols("+8801#########"),
-    transaction_id: faker.string.alphanumeric(10),
-    start: faker.date.past(),
-    end: faker.date.future(),
-    status: "pending",
-  }));
-  await db.insert(subscriptions).values(subsData as any);
-
   // 3. Contacts
   const contactsData = Array.from({ length: 30 }).map(() => ({
     id: faker.string.uuid(),
@@ -123,24 +92,6 @@ async function seed() {
     }))
   );
   await db.insert(options).values(optionsData);
-
-  // 9. User Answers
-  const answersData = Array.from({ length: 100 }).map(() => {
-    const mcq = faker.helpers.arrayElement(mcqsData);
-    const exam = examsData.find((e) => e.id === mcq.exam_id)!;
-    return {
-      id: faker.string.uuid(),
-      exam_id: exam.id,
-      user_id: faker.helpers.arrayElement(userData).id,
-      mcq_id: mcq.id,
-      ans_tag: faker.helpers.arrayElement(["A", "B", "C", "D"]) as
-        | "A"
-        | "B"
-        | "C"
-        | "D",
-    };
-  });
-  await db.insert(user_answers).values(answersData);
 
   console.log("✅ Database seeded with correct dummy data!");
 }

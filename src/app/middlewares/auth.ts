@@ -1,33 +1,26 @@
+import { fromNodeHeaders } from "better-auth/node";
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import catch_async from "../utils/catch-async";
 import AppError from "../errors/app-error";
-import config from "../../config";
+import { auth as better_auth } from "../lib/auth";
+import catch_async from "../utils/catch-async";
 
 const auth = (roles: ("student" | "admin" | "super_admin")[]) => {
   return catch_async(
     async (req: Request, res: Response, next: NextFunction) => {
-      const token = req.cookies.access_token;
+      const session = await better_auth.api.getSession({
+        headers: fromNodeHeaders(req.headers),
+      });
 
-      if (!token) {
-        throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
-      }
-
-      const user = jwt.verify(
-        token,
-        config.jwt.access_secret as string
-      ) as JwtPayload;
-
-      if (!user) {
+      if (!session?.user) {
         throw new AppError(httpStatus.NOT_FOUND, "This user is not found !");
       }
 
-      if (!roles.includes(user.role)) {
+      if (!roles.includes(session?.user?.role)) {
         throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
       }
 
-      req.user = user as JwtPayload;
+      req.user = session?.user;
       next();
     }
   );
