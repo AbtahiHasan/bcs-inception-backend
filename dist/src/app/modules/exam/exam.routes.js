@@ -1,0 +1,25 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.exam_routes = void 0;
+const express_1 = require("express");
+const exam_controllers_1 = require("./exam.controllers");
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const validate_request_1 = require("../../middlewares/validate-request");
+const exam_validators_1 = require("./exam.validators");
+const router = (0, express_1.Router)();
+router.post("/create", (0, auth_1.default)(["admin", "super_admin"]), (0, validate_request_1.validate_request)(exam_validators_1.exam_validators.create_exam), exam_controllers_1.exam_controllers.create_exam);
+router.put("/update/:id", (0, auth_1.default)(["admin", "super_admin"]), (0, validate_request_1.validate_request)(exam_validators_1.exam_validators.create_exam), exam_controllers_1.exam_controllers.update_exam);
+router.post("/mcq/create", (0, auth_1.default)(["admin", "super_admin"]), (0, validate_request_1.validate_request)(exam_validators_1.exam_validators.create_mcq), exam_controllers_1.exam_controllers.create_mcq);
+router.put("/mcq/update/:id", (0, auth_1.default)(["admin", "super_admin"]), (0, validate_request_1.validate_request)(exam_validators_1.exam_validators.create_mcq), exam_controllers_1.exam_controllers.update_mcq);
+router.delete("/mcq/:id", (0, auth_1.default)(["admin", "super_admin"]), exam_controllers_1.exam_controllers.delete_mcq);
+router.post("/mcq/bulk-create", (0, auth_1.default)(["admin", "super_admin"]), (0, validate_request_1.validate_request)(exam_validators_1.exam_validators.create_bulk_mcqs), exam_controllers_1.exam_controllers.create_bulk_mcqs);
+router.get("/", (0, auth_1.default)(["student", "admin", "super_admin"]), exam_controllers_1.exam_controllers.get_exams);
+router.get("/taken", (0, auth_1.default)(["student", "admin", "super_admin"]), exam_controllers_1.exam_controllers.get_user_taken_exams);
+router.get("/:id", (0, auth_1.default)(["student", "admin", "super_admin"]), exam_controllers_1.exam_controllers.get_exam);
+router.delete("/:id", (0, auth_1.default)(["admin", "super_admin"]), exam_controllers_1.exam_controllers.delete_exam);
+router.post("/ans/create", (0, auth_1.default)(["student", "admin", "super_admin"]), (0, validate_request_1.validate_request)(exam_validators_1.exam_validators.create_user_exam_ans), exam_controllers_1.exam_controllers.create_user_exam_ans);
+router.get("/ans/:id", (0, auth_1.default)(["student", "admin", "super_admin"]), exam_controllers_1.exam_controllers.get_user_ans);
+exports.exam_routes = router;
