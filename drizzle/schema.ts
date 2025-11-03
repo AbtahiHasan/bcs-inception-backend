@@ -20,6 +20,11 @@ export const user_role_enum = pgEnum("role", [
   "super_admin",
 ]);
 
+export const subscription_status_user_enum = pgEnum("subscription_status", [
+  "active",
+  "none",
+]);
+
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -27,6 +32,9 @@ export const users = pgTable("users", {
   email_verified: boolean("email_verified").default(false).notNull(),
   phone_number: varchar("phone_number", { length: 20 }), // nullable for Better Auth
   role: user_role_enum("role").default("student"),
+  subscription_status: subscription_status_user_enum("subscription_status")
+    .default("none")
+    .notNull(),
   image: text("image"),
   created_at: timestamp("created_at", { withTimezone: true })
     .defaultNow()

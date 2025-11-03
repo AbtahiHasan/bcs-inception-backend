@@ -42,6 +42,11 @@ export const auth = betterAuth({
         required: false,
         input: false, // Allows the user to set this field
       },
+      subscription_status: {
+        type: "string",
+        required: false,
+        input: false, // Allows the user to set this field
+      },
     },
   },
 

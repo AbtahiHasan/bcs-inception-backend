@@ -1,6 +1,8 @@
 import { and, count, desc, eq } from "drizzle-orm";
 import { subscriptions, users } from "../../../../drizzle/schema";
 import { db } from "../../../db";
+import AppError from "../../errors/app-error";
+import httpStatus from "http-status";
 
 const create_subscription = async (payload: {
   user_id: string;
@@ -114,11 +116,29 @@ const update_status = async (
   id: string,
   status: "pending" | "accepted" | "rejected"
 ) => {
-  const [result] = await db
-    .update(subscriptions)
-    .set({ status: status })
-    .where(eq(subscriptions.id, id))
-    .returning({ id: subscriptions.id });
+  const result = await db.transaction(async (tx) => {
+    const [sub] = await tx
+      .select({ user_id: subscriptions.user_id })
+      .from(subscriptions)
+      .where(eq(subscriptions.id, id));
+
+    if (!sub?.user_id)
+      throw new AppError(httpStatus.NOT_FOUND, "subscriptions not found");
+
+    const [result] = await tx
+      .update(subscriptions)
+      .set({ status: status })
+      .where(eq(subscriptions.id, id))
+      .returning({ id: subscriptions.id });
+
+    if (status === "accepted")
+      await tx
+        .update(users)
+        .set({ subscription_status: "active" })
+        .where(eq(users.id, sub?.user_id));
+
+    return result;
+  });
 
   return result;
 };
