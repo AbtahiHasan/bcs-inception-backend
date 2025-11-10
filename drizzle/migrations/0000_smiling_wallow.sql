@@ -1,6 +1,7 @@
 CREATE TYPE "public"."ans_tag" AS ENUM('A', 'B', 'C', 'D');--> statement-breakpoint
 CREATE TYPE "public"."exam_type" AS ENUM('daily', 'weekly', 'monthly', 'practice', 'question bank');--> statement-breakpoint
 CREATE TYPE "public"."subscription_status_enum" AS ENUM('pending', 'accepted', 'rejected');--> statement-breakpoint
+CREATE TYPE "public"."subscription_status" AS ENUM('active', 'none');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('student', 'admin', 'super_admin');--> statement-breakpoint
 CREATE TABLE "accounts" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -10,12 +11,12 @@ CREATE TABLE "accounts" (
 	"access_token" text,
 	"refresh_token" text,
 	"id_token" text,
-	"access_token_expires_at" timestamp,
-	"refresh_token_expires_at" timestamp,
+	"access_token_expires_at" timestamp with time zone,
+	"refresh_token_expires_at" timestamp with time zone,
 	"scope" text,
 	"password" text,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp NOT NULL
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "contacts" (
@@ -57,7 +58,7 @@ CREATE TABLE "notes" (
 	"title" text NOT NULL,
 	"description" text NOT NULL,
 	"pdf_link" text NOT NULL,
-	"created_at" timestamp DEFAULT now()
+	"created_at" timestamp with time zone DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "options" (
@@ -71,11 +72,11 @@ CREATE TABLE "sessions" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
 	"token" text NOT NULL,
-	"expires_at" timestamp NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
 	"ip_address" text,
 	"user_agent" text,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone NOT NULL,
 	CONSTRAINT "sessions_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
@@ -111,17 +112,26 @@ CREATE TABLE "user_answers" (
 	"ans_tag" "ans_tag" NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "user_performances" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" text NOT NULL,
+	"exam_id" uuid NOT NULL,
+	"marks" numeric(10, 2),
+	"total_marks" numeric(10, 2),
+	"created_at" timestamp with time zone DEFAULT now()
+);
+--> statement-breakpoint
 CREATE TABLE "users" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"email" text NOT NULL,
 	"email_verified" boolean DEFAULT false NOT NULL,
-	"phone_number" varchar(20) NOT NULL,
-	"password" text NOT NULL,
+	"phone_number" varchar(20),
 	"role" "role" DEFAULT 'student',
+	"subscription_status" "subscription_status" DEFAULT 'none' NOT NULL,
 	"image" text,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
@@ -129,9 +139,9 @@ CREATE TABLE "verification_tokens" (
 	"id" text PRIMARY KEY NOT NULL,
 	"identifier" text NOT NULL,
 	"value" text NOT NULL,
-	"expires_at" timestamp NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"expires_at" timestamp with time zone NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -145,4 +155,7 @@ ALTER TABLE "topics" ADD CONSTRAINT "topics_subject_id_subjects_id_fk" FOREIGN K
 ALTER TABLE "user_answers" ADD CONSTRAINT "user_answers_exam_id_exams_id_fk" FOREIGN KEY ("exam_id") REFERENCES "public"."exams"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_answers" ADD CONSTRAINT "user_answers_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_answers" ADD CONSTRAINT "user_answers_mcq_id_mcqs_id_fk" FOREIGN KEY ("mcq_id") REFERENCES "public"."mcqs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "exam_user_idx" ON "user_answers" USING btree ("exam_id","user_id");
+ALTER TABLE "user_performances" ADD CONSTRAINT "user_performances_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_performances" ADD CONSTRAINT "user_performances_exam_id_exams_id_fk" FOREIGN KEY ("exam_id") REFERENCES "public"."exams"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "exam_user_idx" ON "user_answers" USING btree ("exam_id","user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "user_mcq_unique" ON "user_answers" USING btree ("user_id","mcq_id");

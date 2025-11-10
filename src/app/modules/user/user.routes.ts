@@ -15,5 +15,10 @@ router.put(
   validate_request(user_validators.update_user_role),
   user_controllers.update_user_role
 );
+router.get(
+  "/performance",
+  auth(["student", "super_admin"]),
+  user_controllers.get_user_performance
+);
 
 export const user_routes = router;

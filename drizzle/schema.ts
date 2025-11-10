@@ -9,6 +9,7 @@ import {
   varchar,
   boolean,
   uniqueIndex,
+  numeric,
 } from "drizzle-orm/pg-core";
 
 // ================= User & Auth =================
@@ -221,6 +222,21 @@ export const user_answers = pgTable(
     uniqueIndex("user_mcq_unique").on(table.user_id, table.mcq_id), // prevent duplicate answers
   ]
 );
+
+// ================= Performance =================
+
+export const user_performances = pgTable("user_performances", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  user_id: text("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  exam_id: uuid("exam_id")
+    .references(() => exams.id, { onDelete: "cascade" })
+    .notNull(),
+  marks: numeric("marks", { precision: 10, scale: 2 }),
+  total_marks: numeric("total_marks", { precision: 10, scale: 2 }),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
 
 // ================= Notes =================
 export const notes = pgTable("notes", {

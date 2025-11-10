@@ -15,6 +15,7 @@ const get_users = catch_async(async (req, res) => {
   });
 });
 const update_user_role = catch_async(async (req, res) => {
+  console.log({ body: req.body });
   const result = await user_services.update_user_role(req.body);
   send_response(res, {
     success: true,
@@ -24,7 +25,23 @@ const update_user_role = catch_async(async (req, res) => {
   });
 });
 
+const get_user_performance = catch_async(async (req, res) => {
+  const result = await user_services.get_user_performance(
+    req.query,
+    req.user.id
+  );
+
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    message: "user performance fetched successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
 export const user_controllers = {
   get_users,
   update_user_role,
+  get_user_performance,
 };

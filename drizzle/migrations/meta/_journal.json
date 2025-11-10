@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1761193538853,
-      "tag": "0000_living_thor",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1761196364512,
-      "tag": "0001_sticky_micromacro",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1762171166536,
-      "tag": "0002_clear_titanium_man",
+      "when": 1762785427073,
+      "tag": "0000_smiling_wallow",
       "breakpoints": true
     }
   ]
