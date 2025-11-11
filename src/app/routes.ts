@@ -8,6 +8,7 @@ import { user_routes } from "./modules/user/user.routes";
 import { analytics_routes } from "./modules/analytics/analytics.routes";
 import { subscription_routes } from "./modules/subscription/subscription.routes";
 import { note_routes } from "./modules/note/note.routes";
+import { notice_routes } from "./modules/notice/notice.routes";
 
 type TRoute = {
   path: string;
@@ -51,6 +52,10 @@ const moduleRoutes: TRoute[] = [
   {
     path: "/note",
     route: note_routes,
+  },
+  {
+    path: "/notice",
+    route: notice_routes,
   },
 ];
 

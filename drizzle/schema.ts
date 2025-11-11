@@ -255,5 +255,6 @@ export const notes = pgTable("notes", {
 export const notices = pgTable("notices", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
+  urgent: boolean("urgent").notNull().default(false),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

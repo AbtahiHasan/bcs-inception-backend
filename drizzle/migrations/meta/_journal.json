@@ -15,6 +15,27 @@
       "when": 1762787829996,
       "tag": "0001_abnormal_golden_guardian",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1762826176672,
+      "tag": "0002_fearless_komodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1762826622789,
+      "tag": "0003_flaky_madrox",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1762826951751,
+      "tag": "0004_windy_norrin_radd",
+      "breakpoints": true
     }
   ]
 }
