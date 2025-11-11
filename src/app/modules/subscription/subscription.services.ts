@@ -7,6 +7,7 @@ import httpStatus from "http-status";
 const create_subscription = async (payload: {
   user_id: string;
   transaction_id: string;
+  payment_method: "bkash" | "nagad";
   phone_number: string;
 }) => {
   const [result] = await db

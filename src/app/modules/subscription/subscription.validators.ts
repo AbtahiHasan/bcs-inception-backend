@@ -8,6 +8,7 @@ const create_subscription = z.object({
       .regex(/^(?:\+880|880|0)1[3-9]\d{8}$/, {
         message: "Please enter a valid phone number",
       }),
+    payment_method: z.enum(["bkash", "nagad"]),
     transaction_id: z.string().min(1, "Please enter a transaction id"),
   }),
 });

@@ -8,6 +8,13 @@
       "when": 1762785427073,
       "tag": "0000_smiling_wallow",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1762787829996,
+      "tag": "0001_abnormal_golden_guardian",
+      "breakpoints": true
     }
   ]
 }

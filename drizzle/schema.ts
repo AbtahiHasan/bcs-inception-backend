@@ -109,12 +109,17 @@ export const subscription_status_enum = pgEnum("subscription_status_enum", [
   "accepted",
   "rejected",
 ]);
+export const payment_method_enum = pgEnum("payment_method_enum", [
+  "bkash",
+  "nagad",
+]);
 
 export const subscriptions = pgTable("subscriptions", {
   id: uuid("id").defaultRandom().primaryKey(),
   user_id: text("user_id")
     .notNull()
     .references(() => users.id),
+  payment_method: payment_method_enum("payment_method").notNull(),
   phone_number: varchar("phone_number", { length: 20 }).notNull(),
   transaction_id: varchar("transaction_id", { length: 255 }).notNull(),
   status: subscription_status_enum("status").default("pending"),
@@ -244,5 +249,11 @@ export const notes = pgTable("notes", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   pdf_link: text("pdf_link").notNull(),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+// ================= Notice =================
+export const notices = pgTable("notices", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
   created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

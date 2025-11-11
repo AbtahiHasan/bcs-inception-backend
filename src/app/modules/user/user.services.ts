@@ -1,4 +1,15 @@
-import { and, count, desc, eq, ilike, lte, ne, not, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  ilike,
+  lte,
+  ne,
+  not,
+  or,
+  sql,
+} from "drizzle-orm";
 import { exams, user_performances, users } from "../../../../drizzle/schema";
 import { db } from "../../../db";
 
@@ -78,6 +89,7 @@ const get_user_performance = async (params: query_params, user_id: string) => {
     .select({
       exam: exams,
       user_score: user_performances.marks, // this user
+      total_marks: user_performances.total_marks, // this user
       highest_score: sql`
       (SELECT MAX(up.marks)
        FROM ${user_performances} up
@@ -87,9 +99,12 @@ const get_user_performance = async (params: query_params, user_id: string) => {
     })
     .from(exams)
     .where(
-      and(
-        lte(exams.exam_date, new Date()),
-        ne(exams.exam_type, "question bank")
+      or(
+        and(
+          lte(exams.exam_date, new Date()),
+          ne(exams.exam_type, "question bank")
+        ),
+        eq(exams.exam_type, "practice")
       )
     )
     .leftJoin(
@@ -115,6 +130,7 @@ const get_user_performance = async (params: query_params, user_id: string) => {
     ...exam.exam,
     user_score: exam.user_score,
     highest_score: exam.highest_score,
+    total_marks: exam.total_marks,
   }));
   return {
     data: modified_data,

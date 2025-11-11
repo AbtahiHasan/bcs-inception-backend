@@ -7,6 +7,7 @@ const create_subscription = catch_async(async (req, res) => {
   const result = await subscription_services.create_subscription({
     user_id: req.user.id,
     phone_number: req.body.phone_number,
+    payment_method: req.body.payment_method,
     transaction_id: req.body.transaction_id,
   });
 

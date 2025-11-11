@@ -8,7 +8,7 @@ const router = Router();
 
 router.post(
   "/create",
-  auth(["student"]),
+  auth(["student", "super_admin"]),
   validate_request(subscription_validators.create_subscription),
   subscription_controllers.create_subscription
 );
