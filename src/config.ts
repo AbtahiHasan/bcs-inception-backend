@@ -9,6 +9,7 @@ export default {
   api_version: process.env.API_VERSION!,
   origin: process.env.ORIGIN!,
   database_url: process.env.DATABASE_URL!,
+  resend_api_key: process.env.RESEND_API_KEY!,
   bcrypt_salt_rounds: Number(process.env.BCRYPT_SALT_ROUNDS!),
   domain: process.env.DOMAIN!,
   jwt: {
