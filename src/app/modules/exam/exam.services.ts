@@ -20,7 +20,9 @@ import {
   inArray,
   like,
   lt,
+  lte,
   not,
+  or,
 } from "drizzle-orm";
 
 const create_exam = async (payload: i_exam) => {
@@ -273,6 +275,19 @@ const get_exams = async (params: exam_query_params, user_id: string) => {
   };
 };
 
+const get_home_exams = async () => {
+  const now = new Date();
+
+  const result = await db
+    .select()
+    .from(exams)
+    .where(or(lte(exams.exam_date, now), eq(exams.exam_type, "practice"))) // exam_date <= now
+    .orderBy(exams.exam_date)
+    .limit(10);
+
+  return result;
+};
+
 const delete_exam = async (exam_id: string) => {
   const result = await db
     .delete(exams)
@@ -372,6 +387,7 @@ export const exam_services = {
   update_exam,
   create_mcq,
   update_mcq,
+  get_home_exams,
   delete_mcq,
   create_bulk_mcqs,
   get_exam,

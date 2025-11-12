@@ -42,6 +42,16 @@ const update_mcq = catch_async(async (req, res) => {
     data: result,
   });
 });
+const get_home_exams = catch_async(async (req, res) => {
+  const result = await exam_services.get_home_exams();
+
+  send_response(res, {
+    success: true,
+    status_code: httpStatus.OK,
+    message: "home exam fetched successfully",
+    data: result,
+  });
+});
 const delete_mcq = catch_async(async (req, res) => {
   const result = await exam_services.delete_mcq(req.params.id);
 
@@ -135,6 +145,7 @@ export const exam_controllers = {
   update_exam,
   create_mcq,
   update_mcq,
+  get_home_exams,
   delete_mcq,
   create_bulk_mcqs,
   get_exam,

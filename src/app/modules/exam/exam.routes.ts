@@ -52,6 +52,7 @@ router.get(
   auth(["student", "admin", "super_admin"]),
   exam_controllers.get_user_taken_exams
 );
+router.get("/home", exam_controllers.get_home_exams);
 router.get(
   "/:id",
   auth(["student", "admin", "super_admin"]),
