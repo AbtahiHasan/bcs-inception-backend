@@ -6,6 +6,7 @@ import {
   subjects,
   topics,
   user_answers,
+  user_performances,
 } from "../../../../drizzle/schema";
 import { db } from "../../../db";
 import AppError from "../../errors/app-error";
@@ -281,19 +282,72 @@ const delete_exam = async (exam_id: string) => {
 };
 
 const create_user_exam_ans = async (
-  user_id: string,
+  user_id: any,
   payload: i_user_exam_ans[]
 ) => {
-  const data: (i_user_exam_ans & { user_id: string })[] = [];
-  payload.forEach((item) => {
-    data.push({ ...item, user_id: user_id });
+  if (payload.length === 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "No answers provided");
+  }
+
+  const exam_id = payload[0].exam_id;
+
+  return await db.transaction(async (tx) => {
+    const existing = await tx
+      .select()
+      .from(user_performances)
+      .where(
+        and(
+          eq(user_performances.user_id, user_id),
+          eq(user_performances.exam_id, exam_id)
+        )
+      );
+
+    if (existing.length > 0) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "You have already submitted this exam."
+      );
+    }
+
+    const answersData = payload.map((item) => ({
+      ...item,
+      user_id,
+    }));
+
+    const result = await tx.insert(user_answers).values(answersData);
+
+    const mcqsList = await tx
+      .select({
+        id: mcqs.id,
+        correct_tag: mcqs.ans_tag,
+      })
+      .from(mcqs)
+      .where(eq(mcqs.exam_id, exam_id));
+
+    const totalMcqs = mcqsList.length;
+
+    let marks = 0;
+    for (const mcq of mcqsList) {
+      const userAnswer = answersData.find((a) => a.mcq_id === mcq.id);
+      if (userAnswer) {
+        if (userAnswer.ans_tag === mcq.correct_tag) {
+          marks += 1;
+        } else {
+          marks -= 0.5;
+        }
+      }
+    }
+
+    await tx.insert(user_performances).values({
+      user_id,
+      exam_id,
+      marks,
+      total_marks: totalMcqs,
+    });
+
+    return result;
   });
-
-  const result = await db.insert(user_answers).values(data).returning();
-
-  return result;
 };
-
 const get_user_ans = async (user_id: string, exam_id: string) => {
   const result = await db
     .select()
