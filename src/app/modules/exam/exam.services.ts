@@ -329,7 +329,10 @@ const create_user_exam_ans = async (
       user_id,
     }));
 
-    const result = await tx.insert(user_answers).values(answersData);
+    const result = await tx
+      .insert(user_answers)
+      .values(answersData)
+      .returning();
 
     const mcqsList = await tx
       .select({
