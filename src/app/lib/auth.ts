@@ -2,11 +2,29 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { customSession } from "better-auth/plugins";
 import * as schema from "../../../drizzle/schema";
-import { Resend } from "resend";
+
 import { db } from "../../db";
 import config from "../../config";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(config.resend_api_key as string);
+console.log({
+  host: config.smtp_host,
+  port: config.smtp_port,
+  secure: config.smtp_secure,
+  auth: {
+    user: config.smtp_mail,
+    pass: config.smtp_password,
+  },
+});
+const transporter = nodemailer.createTransport({
+  host: config.smtp_host,
+  port: config.smtp_port,
+  secure: config.smtp_secure,
+  auth: {
+    user: config.smtp_mail,
+    pass: config.smtp_password,
+  },
+});
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -24,8 +42,10 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
-      await resend.emails.send({
-        from: "support@yourcompany.com",
+      const newUrl = url.replace(config.better_auth_url, config.backend_url);
+
+      await transporter.sendMail({
+        from: config.smtp_mail,
         to: user.email,
         subject: "Reset Your Password - Action Required",
         html: `
@@ -139,14 +159,14 @@ export const auth = betterAuth({
         </div>
 
         <div class="text-center mb-32">
-          <a href="${url}" class="btn">Reset Password</a>
+          <a href="${newUrl}" class="btn">Reset Password</a>
         </div>
 
         <div class="mb-32">
           <p class="security-text">
             If the button doesn’t work, copy and paste this link into your browser:
           </p>
-          <a href="${url}" class="link">${url}</a>
+          <a href="${newUrl}" class="link">${newUrl}</a>
         </div>
 
         <div class="security-box">
@@ -160,14 +180,7 @@ export const auth = betterAuth({
           </p>
         </div>
 
-        <div class="mb-32">
-          <p class="security-text">
-            Need help? Contact our support team at
-            <a href="mailto:support@company.com" class="link">
-              support@company.com
-            </a>.
-          </p>
-        </div>
+      
 
         
       </div>
