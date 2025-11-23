@@ -361,7 +361,7 @@ const create_user_exam_ans = async (
       exam_id,
       marks,
       total_marks: totalMcqs,
-    });
+    } as any);
 
     return result;
   });

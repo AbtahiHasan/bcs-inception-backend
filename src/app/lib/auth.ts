@@ -7,15 +7,6 @@ import { db } from "../../db";
 import config from "../../config";
 import nodemailer from "nodemailer";
 
-console.log({
-  host: config.smtp_host,
-  port: config.smtp_port,
-  secure: config.smtp_secure,
-  auth: {
-    user: config.smtp_mail,
-    pass: config.smtp_password,
-  },
-});
 const transporter = nodemailer.createTransport({
   host: config.smtp_host,
   port: config.smtp_port,
@@ -24,7 +15,7 @@ const transporter = nodemailer.createTransport({
     user: config.smtp_mail,
     pass: config.smtp_password,
   },
-});
+} as any);
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
